@@ -1,0 +1,44 @@
+-- Adapted from "Android: Fennec DAU/WAU/MAU"
+-- https://sql.telemetry.mozilla.org/queries/52619/source#140089
+
+WITH sample AS (
+   SELECT *
+   FROM default.core_client_count
+   WHERE
+    created_date > date_format(current_date - interval '5' month, '%Y-%m-%d')
+    AND created_date < date_format(current_date - interval '7' day, '%Y-%m-%d')
+    AND app_name = 'Fennec'
+    AND os = 'Android'
+    AND channel = 'release'
+), dau AS (
+  SELECT
+    created_date,
+    merge(cast(hll AS HLL)) AS hll
+  FROM sample
+  GROUP BY created_date
+  HAVING cardinality(merge(cast(hll AS HLL))) > 1000 -- remove outliers
+  ORDER BY created_date DESC
+), wau_table AS (
+  SELECT
+    created_date,
+    -- WAU: Total unique clients over 7-day window
+    merge(hll) OVER (ORDER BY created_date ROWS BETWEEN 6 PRECEDING AND 0 FOLLOWING) AS hll
+  FROM dau
+), mau_table AS (
+  SELECT
+    created_date,
+    -- MAU: Total unique clients over 28-day window
+    merge(hll) OVER (ORDER BY created_date ROWS BETWEEN 27 PRECEDING AND 0 FOLLOWING) AS hll
+  FROM dau
+)
+
+SELECT
+    wau_table.created_date AS day,
+    cardinality(wau_table.hll) AS wau,
+    cardinality(mau_table.hll) AS mau
+FROM
+    wau_table,
+    mau_table
+WHERE
+    wau_table.created_date = mau_table.created_date
+ORDER by day

@@ -1,0 +1,3 @@
+SELECT client_id, COUNT(*)
+FROM main_summary
+GROUP BY client_id
