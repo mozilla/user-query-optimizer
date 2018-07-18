@@ -7,7 +7,9 @@ This API will help you optimize your sql queries for better performance.
 ### `optimize_query(query, schema)`
 **Not Yet Implemented**
 Input: query (type: string), schema (type: tbd)
+
 Output: optimization hints
+
 Usage:
     * Create an optimizer object: `optimizer = Optimizer()`
     * Get optimization hints: `optimizer.optimize_query(query, schema)`
