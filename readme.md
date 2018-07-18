@@ -10,7 +10,7 @@ Input: query (type: string), schema (type: tbd)
 
 Output: optimization hints
 
-Usage:
+Usage
     * Create an optimizer object: `optimizer = Optimizer()`
     * Get optimization hints: `optimizer.optimize_query(query, schema)`
 
