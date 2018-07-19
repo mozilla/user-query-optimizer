@@ -16,12 +16,17 @@ class Optimizer:
     # Input: query, schema; Output: optimization recommendations
     def optimize_query(self):
         # Format Query
-        formatted_query = sqlparse.format(self.query, reindent = True, keyword_case = 'upper')
+        formatted_query = sqlparse.format(
+                            self.query,
+                            reindent = True,
+                            keyword_case = 'upper'
+                        )
 
         # Switch from unicode to utf-8 encoding
         formatted_query = formatted_query.encode('utf-8')
 
-        # Split so optimizations can be made with reference to specific lines in query
+        # Split so optimizations can be made with reference
+        #to specific lines in query
         lines = formatted_query.splitlines()
 
         # Run all optimization checks
