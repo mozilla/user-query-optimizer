@@ -1,0 +1,8 @@
+SELECT *
+FROM
+  access
+WHERE
+  method LIKE '%GET%' OR
+  method LIKE '%POST%' OR
+  method LIKE '%PUT%' OR
+  method LIKE '%DELETE%'

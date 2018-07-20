@@ -4,14 +4,8 @@ import sqlparse
 
 class Optimizer:
     def __init__(self, query, schema):
-        # This probably doesn't need to be stored like this? Will keep for now
         self.query = query
         self.schema = schema
-        self.optimizationRef = dict([
-            (1, "Check Approximates"),
-            (2, "Check Column Selection"),
-            (3, "Check Partitions")
-        ])
 
     # Input: query, schema; Output: optimization recommendations
     def optimize_query(self):
@@ -26,7 +20,7 @@ class Optimizer:
         formatted_query = formatted_query.encode('utf-8')
 
         # Split so optimizations can be made with reference
-        #to specific lines in query
+        # to specific lines in query
         lines = formatted_query.splitlines()
 
         # Run all optimization checks
@@ -37,8 +31,11 @@ class Optimizer:
             print(str(ind + 1) + " " + l)
 
         # Print optimizations for each line
-        print(optimizations)
-
+        print("\nOptimizations")
+        if len(optimizations) == 0:
+            print("\tNone found")
+        for k, v in optimizations.iteritems():
+            print("\tLine " + str(k + 1) + ": " + ", ".join(optimizations[k]) + "\n")
 
     def __runOptimizationChecks(self, lines):
         # Dictionary: line -> list of optimizations
@@ -48,6 +45,8 @@ class Optimizer:
         self.__checkApproximates(lines, optimizations)
         self.__checkColumnSelection(lines, optimizations)
         self.__checkPartitions(lines, optimizations)
+        self.__checkUnion(lines, optimizations)
+        self.__checkAggregatingLikes(lines, optimizations)
 
         return optimizations
 
@@ -55,17 +54,41 @@ class Optimizer:
     #   Suggest using approximate algorithms (e.g. approx_distinct()
     #   instead of COUNT(DISTINCT ...))
     def __checkApproximates(self, lines, optimizations):
-        pass
+        for ind, l in enumerate(lines):
+            if re.search("COUNT\s*\(DISTINCT", l, re.IGNORECASE) is not None:
+                optimizations[ind] += ["Use approx_distinct() rather than COUNT(DISTINCT...)"]
 
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly,
     #   rather than using (SELECT *)
     def __checkColumnSelection(self, lines, optimizations):
         for ind, l in enumerate(lines):
-            if re.search("SELECT \*", l) is not None:
-                optimizations[ind] += [2]
+            if re.search("SELECT \*", l, re.IGNORECASE) is not None:
+                optimizations[ind] += ["Column Selection"]
 
     # Optimization # 3
     #    Suggest filtering on partitioned columns
     def __checkPartitions(self, lines, optimizations):
         pass
+
+    # Optimization # 4
+    #    Replace UNION with UNION ALL if duplicates do not need to be removed
+    #    https://docs.treasuredata.com/articles/presto-query-faq#q-query-that-produces-a-huge-result-is-slow
+    def __checkUnion(self, lines, optimizations):
+        for ind, l in enumerate(lines):
+            if re.search("UNION\s*(^((?!ALL).))*$", l, re.IGNORECASE) is not None:
+                optimizations[ind] += ["Replace UNION with UNION ALL if duplicates allowed"]
+
+    # Optimization # 4
+    #    Aggregate a series of LIKE clauses into one regexp_like expression.
+    #    https://docs.treasuredata.com/articles/presto-query-faq
+    def __checkAggregatingLikes(self, lines, optimizations):
+        count = 0
+        like_ind = []
+        for ind, l in enumerate(lines):
+            if re.search("LIKE", l, re.IGNORECASE) is not None:
+                count += 1
+                like_ind += [ind]
+        if count >= 3:
+            for i in like_ind:
+                optimizations[i] += ["Aggregate a series of LIKE clauses into one regexp_like expression."]

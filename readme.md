@@ -20,3 +20,5 @@ Initial Optimization Checks
   * Using approximate algorithms (`approx_distinct()` instead of `COUNT(DISTINCT ...)`)
   * Selecting the columns the user wants explicitly, rather than using `(SELECT *)`
   * Filtering on partitioned columns
+  * Replace UNION with UNION ALL if duplicates do not need to be removed
+  * Aggregate a series of LIKE clauses into one regexp_like expression.
