@@ -23,3 +23,7 @@ Initial Optimization Checks
   * Replace UNION with UNION ALL if duplicates do not need to be removed
   * Aggregate a series of LIKE clauses into one regexp_like expression
   * Push down a complex join condition into a sub query
+
+### Testing
+To test the optimizer on the test queries, run `python main.py <filename>`.
+e.g. `python main.py test_queries/test-query-5.txt`

@@ -84,7 +84,7 @@ class Optimizer:
             if re.search("UNION\s*(^((?!ALL).))*$", l, re.IGNORECASE) is not None:
                 optimizations[ind] += ["Replace UNION with UNION ALL if duplicates allowed"]
 
-    # Optimization # 4
+    # Optimization # 5
     #    Aggregate a series of LIKE clauses into one regexp_like expression.
     #    https://docs.treasuredata.com/articles/presto-query-faq
     def __checkAggregatingLikes(self, lines, optimizations):
@@ -98,7 +98,7 @@ class Optimizer:
             for i in like_ind:
                 optimizations[i] += ["Aggregate a series of LIKE clauses into one regexp_like expression."]
 
-    # Optimization # 5
+    # Optimization # 6
     #       When the join condition involves several expressions, you can make
     #       it faster by pushing down this condition into a sub query
     #       to prepare a join key beforehand
