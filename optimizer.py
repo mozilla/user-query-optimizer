@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections import OrderedDict
 import re
 import sqlparse
 
@@ -34,7 +35,8 @@ class Optimizer:
         for ind, l in enumerate(lines):
             print(str(ind + 1) + " " + l)
 
-        # Print optimizations for each line
+        # Print optimizations for each line in order
+        optimizations = OrderedDict(optimizations.items())
         print("\nOptimizations")
         if len(optimizations) == 0:
             print("\tNone found")
