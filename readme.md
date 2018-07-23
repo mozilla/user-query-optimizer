@@ -8,7 +8,6 @@ This API will help you optimize your sql queries for better performance.
 e.g. `optimizer = Optimizer()`
 
 ### Get optimization hints using `optimize_query(query, schema)`
-**Not Yet Implemented**
 
 Input: query (type: string), schema (type: tbd)
 

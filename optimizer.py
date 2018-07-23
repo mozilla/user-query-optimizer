@@ -24,7 +24,7 @@ class Optimizer:
         # to specific lines in query
         lines = formatted_query.splitlines()
 
-        # Remove recommendations
+        # Remove comments
         for ind, l in enumerate(lines):
             lines[ind] = re.sub("(--.*|#.*)", "", l)
 
@@ -108,7 +108,7 @@ class Optimizer:
     def __checkSimpleEquijoins(self, lines, optimizations):
         for ind, l in enumerate(lines):
             if re.search("\sON\s", l, re.IGNORECASE) is not None:
-                if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex = operations, numbers
+                if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex join = operations, numbers
                     optimizations[ind] += ["Push down a complex join condition into a sub query."]
 
     # Optimization # 7
