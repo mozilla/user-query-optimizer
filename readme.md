@@ -21,6 +21,7 @@ Initial Optimization Checks
   * Aggregate a series of LIKE clauses into one regexp_like expression
   * Push down a complex join condition into a sub query
   * Try to extract nested subqueries using a WITH clause.
+  * Specify GROUP BY targets with numbers for expressions (in-progress)
 
 ### Testing
 To test the optimizer on the test queries, run `python main.py <filename>`.
