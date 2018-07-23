@@ -5,15 +5,13 @@ This API will help you optimize your sql queries for better performance.
 ## Workflow
 
 ### Create the optimizer object
-e.g. `optimizer = Optimizer()`
+Object specific to a single (query, schema) pair
+e.g. `optimizer = Optimizer(query, schema)`
 
-### Get optimization hints using `optimize_query(query, schema)`
-
-Input: query (type: string), schema (type: tbd)
-
+### Get optimization hints using `optimize_query()`
 Output: optimization hints
 
-Usage: `optimizer.optimize_query(query, schema)`
+Usage: `optimizer.optimize_query()`
 
 Initial Optimization Checks
   * Using approximate algorithms (`approx_distinct()` instead of `COUNT(DISTINCT ...)`)
