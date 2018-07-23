@@ -1,0 +1,14 @@
+SELECT a.date, b.name FROM
+left_table a
+JOIN right_table b
+ON a.date = CAST((b.year * 10000 + b.month * 100 + b.day) as VARCHAR)
+
+SELECT a.date, b.name FROM
+left_table a
+JOIN (
+  SELECT
+    CAST((b.year * 10000 + b.month * 100 + b.day) as VARCHAR) date,  # generate join key
+    name
+  FROM right_table
+) b
+ON a.date = b.date  # Simple equi-join

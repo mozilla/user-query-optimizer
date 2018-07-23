@@ -23,6 +23,10 @@ class Optimizer:
         # to specific lines in query
         lines = formatted_query.splitlines()
 
+        # Remove recommendations
+        for ind, l in enumerate(lines):
+            lines[ind] = re.sub("(--.*|#.*)", "", l)
+
         # Run all optimization checks
         optimizations = self.__runOptimizationChecks(lines)
 
@@ -47,6 +51,7 @@ class Optimizer:
         self.__checkPartitions(lines, optimizations)
         self.__checkUnion(lines, optimizations)
         self.__checkAggregatingLikes(lines, optimizations)
+        self.__checkSimpleEquijoins(lines, optimizations)
 
         return optimizations
 
@@ -92,3 +97,13 @@ class Optimizer:
         if count >= 3:
             for i in like_ind:
                 optimizations[i] += ["Aggregate a series of LIKE clauses into one regexp_like expression."]
+
+    # Optimization # 5
+    #       When the join condition involves several expressions, you can make
+    #       it faster by pushing down this condition into a sub query
+    #       to prepare a join key beforehand
+    def __checkSimpleEquijoins(self, lines, optimizations):
+        for ind, l in enumerate(lines):
+            if re.search("\sON\s", l, re.IGNORECASE) is not None:
+                if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex = operations, numbers
+                    optimizations[ind] += ["Push down a complex join condition into a sub query."]
