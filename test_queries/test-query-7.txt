@@ -1,0 +1,3 @@
+SELECT a, b, c FROM (
+   SELECT a, MAX(b) AS b, MIN(c) AS c FROM tbl GROUP BY a
+) tbl_alias

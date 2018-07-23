@@ -52,6 +52,7 @@ class Optimizer:
         self.__checkUnion(lines, optimizations)
         self.__checkAggregatingLikes(lines, optimizations)
         self.__checkSimpleEquijoins(lines, optimizations)
+        self.__checkNestedQueries(lines, optimizations)
 
         return optimizations
 
@@ -107,3 +108,12 @@ class Optimizer:
             if re.search("\sON\s", l, re.IGNORECASE) is not None:
                 if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex = operations, numbers
                     optimizations[ind] += ["Push down a complex join condition into a sub query."]
+
+    # Optimization # 7
+    #       If your query becomes complex or deeply nested,
+    #       try to extract sub queries using WITH clause.
+    def __checkNestedQueries(self, lines, optimizations):
+        for ind, l in enumerate(lines):
+            if re.search("FROM\s*\(?\s*$", l, re.IGNORECASE) is not None:
+                if re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
+                    optimizations[ind] += ["Try to extract nested subqueries using a WITH clause."]
