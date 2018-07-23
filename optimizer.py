@@ -117,5 +117,7 @@ class Optimizer:
     def __checkNestedQueries(self, lines, optimizations):
         for ind, l in enumerate(lines):
             if re.search("FROM\s*\(?\s*$", l, re.IGNORECASE) is not None:
-                if re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
+                if re.search("\s*\(?\s*SELECT", lines[ind], re.IGNORECASE) is not None:
                     optimizations[ind] += ["Try to extract nested subqueries using a WITH clause."]
+                if re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
+                    optimizations[ind + 1] += ["Try to extract nested subqueries using a WITH clause."]
