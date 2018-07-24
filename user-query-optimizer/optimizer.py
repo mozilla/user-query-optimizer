@@ -55,7 +55,6 @@ class Optimizer:
         self.__checkAggregatingLikes(lines, optimizations)
         self.__checkSimpleEquijoins(lines, optimizations)
         self.__checkNestedQueries(lines, optimizations)
-        self.__checkGroupByExpressions(lines, optimizations)
 
         return optimizations
 
@@ -122,22 +121,3 @@ class Optimizer:
                     optimizations[ind] += ["Try to extract nested subqueries using a WITH clause."]
                 if ind != len(lines) - 1 and re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
                     optimizations[ind + 1] += ["Try to extract nested subqueries using a WITH clause."]
-
-    # Optimization # 8
-    #    Specify GROUP BY targets with numbers for expressions
-    def __checkGroupByExpressions(self, lines, optimizations):
-        for ind, l in enumerate(lines):
-            if re.search("GROUP BY", l, re.IGNORECASE) is not None:
-                # if all in one line
-                vars = re.sub("GROUP BY", "", l).strip().split(",")
-                for v in vars:
-                    # Assume if var has whitespace, it's an expression
-                    if re.search("\s", v.strip()):
-                        optimizations[ind] += ["Specify GROUP BY targets with numbers for expressions"]
-
-                # if vars on multiple lines
-                i = ind
-                while i < len(lines) - 1 and re.search(",", lines[i + 1]) is None:
-                    if re.search("\s", lines[i + 1]) is not None:
-                        optimizations[i] += ["Specify GROUP BY targets with numbers for expressions"]
-                    i += 1
