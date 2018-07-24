@@ -8,11 +8,10 @@ if __name__ == '__main__':
         query = f.read()
 
     # Ignore case
-    query = query.lower()
     schema = {} # placeholder
 
     # Instantiate optimizer object
     optimizer = optimizer.Optimizer(query, schema)
 
-    # Optimize query   
+    # Optimize query
     optimizer.optimize_query()
