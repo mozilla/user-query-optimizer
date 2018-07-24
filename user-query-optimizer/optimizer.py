@@ -51,10 +51,10 @@ class Optimizer:
         self.__checkApproximates(lines, optimizations)
         self.__checkColumnSelection(lines, optimizations)
         self.__checkPartitions(lines, optimizations)
-        self.__checkUnion(lines, optimizations)
-        self.__checkAggregatingLikes(lines, optimizations)
-        self.__checkSimpleEquijoins(lines, optimizations)
-        self.__checkNestedQueries(lines, optimizations)
+        # self.__checkUnion(lines, optimizations)
+        # self.__checkAggregatingLikes(lines, optimizations)
+        # self.__checkSimpleEquijoins(lines, optimizations)
+        # self.__checkNestedQueries(lines, optimizations)
 
         return optimizations
 
@@ -65,6 +65,7 @@ class Optimizer:
         for ind, l in enumerate(lines):
             if re.search("COUNT\s*\(DISTINCT", l, re.IGNORECASE) is not None:
                 optimizations[ind] += ["Use approx_distinct() rather than COUNT(DISTINCT...)"]
+        return optimizations
 
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly,
@@ -79,45 +80,45 @@ class Optimizer:
     def __checkPartitions(self, lines, optimizations):
         pass
 
-    # Optimization # 4
-    #    Replace UNION with UNION ALL if duplicates do not need to be removed
-    #    https://docs.treasuredata.com/articles/presto-query-faq#q-query-that-produces-a-huge-result-is-slow
-    def __checkUnion(self, lines, optimizations):
-        for ind, l in enumerate(lines):
-            if re.search("UNION\s*(^((?!ALL).))*$", l, re.IGNORECASE) is not None:
-                optimizations[ind] += ["Replace UNION with UNION ALL if duplicates allowed"]
-
-    # Optimization # 5
-    #    Aggregate a series of LIKE clauses into one regexp_like expression.
-    #    https://docs.treasuredata.com/articles/presto-query-faq
-    def __checkAggregatingLikes(self, lines, optimizations):
-        count = 0
-        like_ind = []
-        for ind, l in enumerate(lines):
-            if re.search("LIKE", l, re.IGNORECASE) is not None:
-                count += 1
-                like_ind += [ind]
-        if count >= 3:
-            for i in like_ind:
-                optimizations[i] += ["Aggregate a series of LIKE clauses into one regexp_like expression."]
-
-    # Optimization # 6
-    #       When the join condition involves several expressions, you can make
-    #       it faster by pushing down this condition into a sub query
-    #       to prepare a join key beforehand
-    def __checkSimpleEquijoins(self, lines, optimizations):
-        for ind, l in enumerate(lines):
-            if re.search("\sON\s", l, re.IGNORECASE) is not None:
-                if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex join = operations, numbers
-                    optimizations[ind] += ["Push down a complex join condition into a sub query."]
-
-    # Optimization # 7
-    #       If your query becomes complex or deeply nested,
-    #       try to extract sub queries using WITH clause.
-    def __checkNestedQueries(self, lines, optimizations):
-        for ind, l in enumerate(lines):
-            if re.search("FROM\s*\(?\s*$", l, re.IGNORECASE) is not None:
-                if re.search("\s*\(?\s*SELECT", lines[ind], re.IGNORECASE) is not None:
-                    optimizations[ind] += ["Try to extract nested subqueries using a WITH clause."]
-                if ind != len(lines) - 1 and re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
-                    optimizations[ind + 1] += ["Try to extract nested subqueries using a WITH clause."]
+    # # Optimization # 4
+    # #    Replace UNION with UNION ALL if duplicates do not need to be removed
+    # #    https://docs.treasuredata.com/articles/presto-query-faq#q-query-that-produces-a-huge-result-is-slow
+    # def __checkUnion(self, lines, optimizations):
+    #     for ind, l in enumerate(lines):
+    #         if re.search("UNION\s*(^((?!ALL).))*$", l, re.IGNORECASE) is not None:
+    #             optimizations[ind] += ["Replace UNION with UNION ALL if duplicates allowed"]
+    #
+    # # Optimization # 5
+    # #    Aggregate a series of LIKE clauses into one regexp_like expression.
+    # #    https://docs.treasuredata.com/articles/presto-query-faq
+    # def __checkAggregatingLikes(self, lines, optimizations):
+    #     count = 0
+    #     like_ind = []
+    #     for ind, l in enumerate(lines):
+    #         if re.search("LIKE", l, re.IGNORECASE) is not None:
+    #             count += 1
+    #             like_ind += [ind]
+    #     if count >= 3:
+    #         for i in like_ind:
+    #             optimizations[i] += ["Aggregate a series of LIKE clauses into one regexp_like expression."]
+    #
+    # # Optimization # 6
+    # #       When the join condition involves several expressions, you can make
+    # #       it faster by pushing down this condition into a sub query
+    # #       to prepare a join key beforehand
+    # def __checkSimpleEquijoins(self, lines, optimizations):
+    #     for ind, l in enumerate(lines):
+    #         if re.search("\sON\s", l, re.IGNORECASE) is not None:
+    #             if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex join = operations, numbers
+    #                 optimizations[ind] += ["Push down a complex join condition into a sub query."]
+    #
+    # # Optimization # 7
+    # #       If your query becomes complex or deeply nested,
+    # #       try to extract sub queries using WITH clause.
+    # def __checkNestedQueries(self, lines, optimizations):
+    #     for ind, l in enumerate(lines):
+    #         if re.search("FROM\s*\(?\s*$", l, re.IGNORECASE) is not None:
+    #             if re.search("\s*\(?\s*SELECT", lines[ind], re.IGNORECASE) is not None:
+    #                 optimizations[ind] += ["Try to extract nested subqueries using a WITH clause."]
+    #             if ind != len(lines) - 1 and re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
+    #                 optimizations[ind + 1] += ["Try to extract nested subqueries using a WITH clause."]
