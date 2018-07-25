@@ -7,7 +7,6 @@ if __name__ == '__main__':
     with open(fname) as f:
         query = f.read()
 
-    # Ignore case
     schema = {} # placeholder
 
     # Instantiate optimizer object

@@ -65,6 +65,7 @@ class Optimizer:
         for ind, l in enumerate(lines):
             if re.search("COUNT\s*\(DISTINCT", l, re.IGNORECASE) is not None:
                 optimizations[ind] += ["Use approx_distinct() rather than COUNT(DISTINCT...)"]
+        return optimizations
 
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly,
