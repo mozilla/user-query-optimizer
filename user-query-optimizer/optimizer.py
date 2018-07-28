@@ -1,7 +1,11 @@
-from collections import defaultdict
-from collections import OrderedDict
 import re
 import sqlparse
+from collections import defaultdict
+from collections import OrderedDict
+from clickhouse_cli.ui.parseutils.ctes import extract_ctes
+from sqlparse.sql import IdentifierList, Identifier, Function
+from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
+
 
 class Optimizer:
     def __init__(self, query, schema):
@@ -10,24 +14,6 @@ class Optimizer:
 
     # Input: query, schema; Output: optimization recommendations
     def optimize_query(self):
-        # Format Query
-        formatted_query = sqlparse.format(
-                            self.query,
-                            reindent = True,
-                            keyword_case = 'upper'
-                        )
-
-        # Switch from unicode to utf-8 encoding
-        formatted_query = formatted_query.encode('utf-8')
-
-        # Split so optimizations can be made with reference
-        # to specific lines in query
-        lines = formatted_query.splitlines()
-
-        # Remove comments
-        for ind, l in enumerate(lines):
-            lines[ind] = re.sub("(--.*|#.*)", "", l)
-
         # Run all optimization checks
         optimizations = self.__runOptimizationChecks(lines)
 
@@ -51,25 +37,73 @@ class Optimizer:
         self.__checkApproximates(lines, optimizations)
         self.__checkColumnSelection(lines, optimizations)
         self.__checkPartitions(lines, optimizations)
-        # self.__checkUnion(lines, optimizations)
-        # self.__checkAggregatingLikes(lines, optimizations)
-        # self.__checkSimpleEquijoins(lines, optimizations)
-        # self.__checkNestedQueries(lines, optimizations)
 
         return optimizations
 
     # Optimization #1
-    #   Suggest using approximate algorithms (e.g. approx_distinct()
-    #   instead of COUNT(DISTINCT ...))
-    def __checkApproximates(self, lines, optimizations):
+    #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...))
+    #   Consider other approximations later on (when to use approx_percentile?)
+    def __checkApproximates(self, optimizations):
+        formatted_query = str(sqlparse.format(self.query, strip_comments = True))
+        parsed = sqlparse.parse(formatted_query)
+        parsed_queries = []
+        for query in parsed:
+            query = str(query)
+            ctes = extract_ctes(query)
+            cte_list, remainder_query = ctes[0], ctes[1]
+            for cte in cte_list:
+                cte_str = query[cte.start + 1:cte.stop - 1]
+                parsed_cte = sqlparse.parse(cte_str)
+                parsed_queries += [parsed_cte]
+
+            parsed_remainder = sqlparse.parse(remainder_query)
+            parsed_queries += [parsed_remainder]
+
+        optimizations = defaultdict(list)
+        for stmt_list in parsed_queries:
+            lineno = 0
+            for stmt in stmt_list:
+                select_seen = False
+                for token in stmt.tokens:
+                    if token.ttype is Newline:
+                        lineno += 1
+                    if select_seen:
+                        if token.ttype is Keyword and token.value.upper() == "FROM":
+                            break
+                        else:
+                            if isinstance(token, IdentifierList):
+                                for identifier in token.get_identifiers():
+                                    if re.search("COUNT\s*\(\s*DISTINCT", str(identifier), re.IGNORECASE):
+                                        optimizations[stmt] += [(lineno, "use approximation")]
+                            elif isinstance(token, Identifier):
+                                if re.search("COUNT\s*\(\s*DISTINCT", str(token), re.IGNORECASE):
+                                    optimizations[stmt] += [(lineno, "use approximation")]
+                    if token.ttype is DML and token.value.upper() == "SELECT":
+                        select_seen = True
+
+        # find subquery in original query again, and adjust line numbers
+        adjusted_opts = {}
+        for k, v in optimizations.iteritems():
+            for opt in v:
+                match = formatted_query.find(str(k))
+                if match != -1:
+                    adjusted_lineno = formatted_query[:(match + opt[0])].count("\n")
+                    adjusted_opts[adjusted_lineno] = opt[1]
+
+        # Print lines
+        lines = formatted_query.split("\n")
         for ind, l in enumerate(lines):
-            if re.search("COUNT\s*\(DISTINCT", l, re.IGNORECASE) is not None:
-                optimizations[ind] += ["Use approx_distinct() rather than COUNT(DISTINCT...)"]
+            if l.strip() != "":
+                print(str(ind) + " " + l)
+        print("\n")
+
+        # Print optimizations
+        for k, v in OrderedDict(adjusted_opts).iteritems():
+            print("Line number " + str(k) + ": " + v + "\n")
         return optimizations
 
     # Optimization # 2
-    #   Suggest selecting the columns the user wants explicitly,
-    #   rather than using (SELECT *)
+    #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
     def __checkColumnSelection(self, lines, optimizations):
         for ind, l in enumerate(lines):
             if re.search("SELECT \*", l, re.IGNORECASE) is not None:
@@ -79,46 +113,3 @@ class Optimizer:
     #    Suggest filtering on partitioned columns
     def __checkPartitions(self, lines, optimizations):
         pass
-
-    # # Optimization # 4
-    # #    Replace UNION with UNION ALL if duplicates do not need to be removed
-    # #    https://docs.treasuredata.com/articles/presto-query-faq#q-query-that-produces-a-huge-result-is-slow
-    # def __checkUnion(self, lines, optimizations):
-    #     for ind, l in enumerate(lines):
-    #         if re.search("UNION\s*(^((?!ALL).))*$", l, re.IGNORECASE) is not None:
-    #             optimizations[ind] += ["Replace UNION with UNION ALL if duplicates allowed"]
-    #
-    # # Optimization # 5
-    # #    Aggregate a series of LIKE clauses into one regexp_like expression.
-    # #    https://docs.treasuredata.com/articles/presto-query-faq
-    # def __checkAggregatingLikes(self, lines, optimizations):
-    #     count = 0
-    #     like_ind = []
-    #     for ind, l in enumerate(lines):
-    #         if re.search("LIKE", l, re.IGNORECASE) is not None:
-    #             count += 1
-    #             like_ind += [ind]
-    #     if count >= 3:
-    #         for i in like_ind:
-    #             optimizations[i] += ["Aggregate a series of LIKE clauses into one regexp_like expression."]
-    #
-    # # Optimization # 6
-    # #       When the join condition involves several expressions, you can make
-    # #       it faster by pushing down this condition into a sub query
-    # #       to prepare a join key beforehand
-    # def __checkSimpleEquijoins(self, lines, optimizations):
-    #     for ind, l in enumerate(lines):
-    #         if re.search("\sON\s", l, re.IGNORECASE) is not None:
-    #             if re.search("[+\-\*\/0-9]", l, re.IGNORECASE) is not None: # complex join = operations, numbers
-    #                 optimizations[ind] += ["Push down a complex join condition into a sub query."]
-    #
-    # # Optimization # 7
-    # #       If your query becomes complex or deeply nested,
-    # #       try to extract sub queries using WITH clause.
-    # def __checkNestedQueries(self, lines, optimizations):
-    #     for ind, l in enumerate(lines):
-    #         if re.search("FROM\s*\(?\s*$", l, re.IGNORECASE) is not None:
-    #             if re.search("\s*\(?\s*SELECT", lines[ind], re.IGNORECASE) is not None:
-    #                 optimizations[ind] += ["Try to extract nested subqueries using a WITH clause."]
-    #             if ind != len(lines) - 1 and re.search("\s*\(?\s*SELECT", lines[ind + 1], re.IGNORECASE) is not None:
-    #                 optimizations[ind + 1] += ["Try to extract nested subqueries using a WITH clause."]
