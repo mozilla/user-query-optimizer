@@ -8,7 +8,7 @@ def queries():
     filepath = 'test_queries/*.txt'
     files = glob.glob(filepath)
 
-    for file in files[2:3]:
+    for file in files:
         f = open(file, 'r')
         query = f.read()
         queries += [query]

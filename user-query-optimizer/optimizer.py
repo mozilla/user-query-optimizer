@@ -11,40 +11,41 @@ class Optimizer:
     def __init__(self, query, schema):
         self.query = query
         self.schema = schema
+        # Dictionary: statement -> list of tuples (lineno, optimization)
+        self.optimizations = defaultdict(list)
 
-    # Input: query, schema; Output: optimization recommendations
+    # Main public function to optimize a query
     def optimize_query(self):
-        # Run all optimization checks
-        optimizations = self.__runOptimizationChecks(lines)
-
-        # Print lines with line numbers
-        for ind, l in enumerate(lines):
-            print(str(ind + 1) + " " + l)
-
-        # Print optimizations for each line in order
-        optimizations = OrderedDict(optimizations.items())
-        print("\nOptimizations")
-        if len(optimizations) == 0:
-            print("\tNone found")
-        for k, v in optimizations.iteritems():
-            print("\tLine " + str(k + 1) + ": " + ", ".join(optimizations[k]) + "\n")
-
-    def __runOptimizationChecks(self, lines):
-        # Dictionary: line -> list of optimizations
-        optimizations = defaultdict(list)
-
-        # Run tests
-        self.__checkApproximates(lines, optimizations)
-        self.__checkColumnSelection(lines, optimizations)
-        self.__checkPartitions(lines, optimizations)
-
-        return optimizations
-
-    # Optimization #1
-    #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...))
-    #   Consider other approximations later on (when to use approx_percentile?)
-    def __checkApproximates(self, optimizations):
+        # Parse queries and extract CTEs
+        # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(self.query, strip_comments = True))
+        parsed_queries = parse_query(formatted_query)
+
+        # Run all optimization checks
+        self.__runOptimizationChecks(parsed_queries)
+
+        # Find subquery in original query again, and adjust line numbers
+        adjusted_opts = self.__adjust_linenums(formatted_query)
+
+        # Print query
+        self.__print_query_lines(formatted_query)
+
+        # Print optimizations
+        self.__print_optimizations(adjusted_opts)
+
+    # Run each optimiztion check on parsed queries and update optimizations dictionary
+    # Input: parsed_queries
+    # Output: None
+    def __runOptimizationChecks(self, parsed_queries):
+        # Run tests
+        self.__checkApproximates(parsed_queries)
+        self.__checkColumnSelection(parsed_queries)
+        self.__checkPartitions(parsed_queries)
+
+    # Parse query using sqlparse and extract CTEs
+    # Input: Original query formatted
+    # Output: List of statements - each is a parsed query for each CTE in each query in the original
+    def __parse_query(self, formatted_query):
         parsed = sqlparse.parse(formatted_query)
         parsed_queries = []
         for query in parsed:
@@ -58,8 +59,48 @@ class Optimizer:
 
             parsed_remainder = sqlparse.parse(remainder_query)
             parsed_queries += [parsed_remainder]
+        return parsed_queries
 
-        optimizations = defaultdict(list)
+    # Find subquery in original query again, and adjust line numbers
+    # Input: original formatted query
+    # Returns: dictionary from line numbers in original formatted query -> list of optimizations
+    def __adjust_linenums(self, formatted_query):
+        adjusted_opts = {}
+        for k, v in self.optimizations.iteritems():
+            for opt in v:
+                match = formatted_query.find(str(k))
+                if match != -1:
+                    adjusted_lineno = formatted_query[:(match + opt[0])].count("\n")
+                    adjusted_opts[adjusted_lineno] = opt[1]
+        return adjusted_opts
+
+    # Prints formatted query with line numbers
+    # Input: formatted parse_query
+    # Output: Print query to console with line numbers
+    def __print_query_lines(self, formatted_query):
+        lines = formatted_query.split("\n")
+        for ind, l in enumerate(lines):
+            if l.strip() != "":
+                print(str(ind + 1) + " " + l)
+        print("\n")
+
+    # Print optimizations (line numbers in original query, and optimization(s) for line)
+    # Input: Optimizations dictionary with line numbers adjusted to original formatted query
+    # Output: Print optimizations to console
+    def __print_optimizations(self, adjusted_opts):
+        print("\nOptimizations")
+        if len(adjusted_opts) == 0:
+            print("\tNone found")
+        else:
+            # Print optimizations
+            for k, v in OrderedDict(adjusted_opts).iteritems():
+                print("\tLine " + str(k + 1) + ": " + v + "\n")
+        print("\n")
+
+    # Optimization #1
+    #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...))
+    #   Consider other approximations later on (when to use approx_percentile?)
+    def __checkApproximates(self, parsed_queries):
         for stmt_list in parsed_queries:
             lineno = 0
             for stmt in stmt_list:
@@ -74,42 +115,19 @@ class Optimizer:
                             if isinstance(token, IdentifierList):
                                 for identifier in token.get_identifiers():
                                     if re.search("COUNT\s*\(\s*DISTINCT", str(identifier), re.IGNORECASE):
-                                        optimizations[stmt] += [(lineno, "use approximation")]
+                                        self.optimizations[stmt] += [(lineno, "use approximation")]
                             elif isinstance(token, Identifier):
                                 if re.search("COUNT\s*\(\s*DISTINCT", str(token), re.IGNORECASE):
-                                    optimizations[stmt] += [(lineno, "use approximation")]
+                                    self.optimizations[stmt] += [(lineno, "use approximation")]
                     if token.ttype is DML and token.value.upper() == "SELECT":
                         select_seen = True
 
-        # find subquery in original query again, and adjust line numbers
-        adjusted_opts = {}
-        for k, v in optimizations.iteritems():
-            for opt in v:
-                match = formatted_query.find(str(k))
-                if match != -1:
-                    adjusted_lineno = formatted_query[:(match + opt[0])].count("\n")
-                    adjusted_opts[adjusted_lineno] = opt[1]
-
-        # Print lines
-        lines = formatted_query.split("\n")
-        for ind, l in enumerate(lines):
-            if l.strip() != "":
-                print(str(ind) + " " + l)
-        print("\n")
-
-        # Print optimizations
-        for k, v in OrderedDict(adjusted_opts).iteritems():
-            print("Line number " + str(k) + ": " + v + "\n")
-        return optimizations
-
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
-    def __checkColumnSelection(self, lines, optimizations):
-        for ind, l in enumerate(lines):
-            if re.search("SELECT \*", l, re.IGNORECASE) is not None:
-                optimizations[ind] += ["Column Selection"]
+    def __checkColumnSelection(self, parsed_queries):
+        pass
 
     # Optimization # 3
     #    Suggest filtering on partitioned columns
-    def __checkPartitions(self, lines, optimizations):
+    def __checkPartitions(self, parsed_queries):
         pass
