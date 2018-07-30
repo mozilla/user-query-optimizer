@@ -17,10 +17,10 @@ def test_approximates(queries):
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
         schema = {} # Placeholder
-        op = optimizer.Optimizer(query, schema)
+        op = optimizer.Optimizer(query, schema, "Presto")
 
         # Parse query and extract ctes
-        # Strip comments to help sqlparse correctly extract the identifier list 
+        # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True))
         parsed_queries = op._Optimizer__parse_query(formatted_query)
 

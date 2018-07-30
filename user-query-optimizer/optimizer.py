@@ -8,11 +8,14 @@ from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 
 
 class Optimizer:
-    def __init__(self, query, schema):
+    def __init__(self, query, schema, db):
         self.query = query
         self.schema = schema
+        # Database: Presto, Athena, or Spark
+        self.db = db
         # Dictionary: statement -> list of tuples (lineno, optimization)
         self.optimizations = defaultdict(list)
+
 
     # Main public function to optimize a query
     def optimize_query(self):
@@ -98,8 +101,13 @@ class Optimizer:
         print("\n")
 
     # Optimization #1
-    #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...))
-    #   Consider other approximations later on (when to use approx_percentile?)
+    #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...));
+    #   Consider other approximations later on (when to use approx_percentile?);
+    #   Extracts SELECT identifiers, looks for "COUNT(DISTINCT ....)" and adds
+    #   statement as key, and (line no, "use approximation") tuple to corresponding
+    #   list in self.optimizations dictionary if found; 
+    #   Same for all databases I think?
+
     def __checkApproximates(self, parsed_queries):
         for stmt_list in parsed_queries:
             lineno = 0
