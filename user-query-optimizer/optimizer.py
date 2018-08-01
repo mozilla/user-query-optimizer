@@ -21,7 +21,7 @@ class Optimizer:
     def optimize_query(self):
         # Parse queries and extract CTEs
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(self.query, strip_comments = True))
+        formatted_query = str(sqlparse.format(self.query, strip_comments = True)).strip()
         parsed_queries = parse_query(formatted_query)
 
         # Run all optimization checks
@@ -83,8 +83,7 @@ class Optimizer:
     def __print_query_lines(self, formatted_query):
         lines = formatted_query.split("\n")
         for ind, l in enumerate(lines):
-            if l.strip() != "":
-                print(str(ind + 1) + " " + l)
+            print(str(ind + 1) + " " + l)
         print("\n")
 
     # Print optimizations (line numbers in original query, and optimization(s) for line)
@@ -111,11 +110,9 @@ class Optimizer:
     def __checkApproximates(self, parsed_queries):
         for stmt_list in parsed_queries:
             for stmt in stmt_list:
-                lineno = 0
+                seen_stmt = ""
                 select_seen = False
                 for token in stmt.tokens:
-                    if token.ttype is Newline:
-                        lineno += 1
                     if select_seen:
                         if token.ttype is Keyword and token.value.upper() == "FROM":
                             break
@@ -123,23 +120,25 @@ class Optimizer:
                             if isinstance(token, IdentifierList):
                                 for identifier in token.get_identifiers():
                                     if re.search("COUNT\s*\(\s*DISTINCT", str(identifier), re.IGNORECASE):
+                                        # newlines in sqlparse sometimes group clauses together - need to recalculate
+                                        lineno = seen_stmt.count("\n")
                                         self.optimizations[stmt] += [(lineno, "use approximation")]
                             elif isinstance(token, Identifier):
                                 if re.search("COUNT\s*\(\s*DISTINCT", str(token), re.IGNORECASE):
+                                    lineno = seen_stmt.count("\n")
                                     self.optimizations[stmt] += [(lineno, "use approximation")]
                     if token.ttype is DML and token.value.upper() == "SELECT":
                         select_seen = True
+                    seen_stmt += str(token)
 
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
     def __checkColumnSelection(self, parsed_queries):
         for stmt_list in parsed_queries:
             for stmt in stmt_list:
-                lineno = 0
+                seen_stmt = ""
                 select_seen = False
                 for token in stmt.tokens:
-                    if token.ttype is Newline:
-                        lineno += 1
                     if select_seen:
                         if token.ttype is Keyword and token.value.upper() == "FROM":
                             break
@@ -147,12 +146,16 @@ class Optimizer:
                             if isinstance(token, IdentifierList):
                                 for identifier in token.get_identifiers():
                                     if identifier.ttype is Wildcard:
+                                        # newlines in sqlparse sometimes group clauses together - need to recalculate
+                                        lineno = seen_stmt.count("\n")
                                         self.optimizations[stmt] += [(lineno, "select columns explicitly")]
                             elif token.ttype is Wildcard:
+                                lineno = seen_stmt.count("\n")
                                 self.optimizations[stmt] += [(lineno, "select columns explicitly")]
 
                     if token.ttype is DML and token.value.upper() == "SELECT":
                         select_seen = True
+                    seen_stmt += str(token)
 
     # Optimization # 3
     #    Suggest filtering on partitioned columns
@@ -160,20 +163,19 @@ class Optimizer:
         for stmt_list in parsed_queries:
             where_line = None
             for stmt in stmt_list:
-                lineno = 0
+                seen_stmt = ""
                 partition_seen = False
                 for token in stmt.tokens:
-                    if token.ttype is Newline:
-                        lineno += 1
                     if isinstance(token, Where):
-                        where_line = lineno
+                        # newlines in sqlparse sometimes group clauses together - need to recalculate
+                        where_line = seen_stmt.count("\n")
                         for item in token.tokens:
                             if isinstance(item, Comparison):
                                 if item.left.value in self.schema["partitions"] or \
                                     item.right.value in self.schema["partitions"]:
                                         partition_seen = True
                                         break
-
+                    seen_stmt += str(token)
                 if not partition_seen:
                     lineno = 0 if where_line is None else where_line
                     self.optimizations[stmt] += [(lineno, "filter on a partitioned column")]
