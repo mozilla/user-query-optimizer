@@ -1,0 +1,5 @@
+SELECT *
+FROM
+  telemetry_core_parquet
+WHERE
+  submission_date_s3 > '062019'

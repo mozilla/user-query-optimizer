@@ -161,9 +161,9 @@ class Optimizer:
     #    Suggest filtering on partitioned columns
     #    Only make suggestion if user has not filtered on ANY partitioned columns
     #    Future: give indications about the size of data that will be scanned
-    #   (e.g. “you are filtering on a partitioned column, but it will be 2.2TB of data.
+    #   (e.g. you are filtering on a partitioned column, but it will be 2.2TB of data.
     #       Considering reducing the set of data further, using the same partitioned colum
-    #       or [other partitioned columns here]”)
+    #       or [other partitioned columns here])
     #   Line numbers: If there's a where clause without a partitioned column, line number = where clause;
     #                If there's no where clause, line number = first line of the query / CTE
     def __checkPartitions(self, parsed_queries):
@@ -186,3 +186,27 @@ class Optimizer:
                 if not partition_seen:
                     lineno = 0 if where_line is None else where_line
                     self.optimizations[stmt] += [(lineno, "filter on a partitioned column")]
+
+    # Optimization # 4
+    #       Use a WITH clause rather than nested subqueries
+    def __extractNestedSubqueries(self, parsed_queries):
+        for stmt_list in parsed_queries:
+            for stmt in stmt_list:
+                seen_stmt = ""
+                for token in stmt.tokens:
+                    if isinstance(token, IdentifierList):
+                        for identifier in token.get_identifiers():
+                            if re.search("\s*\(\s*SELECT", str(identifier), re.IGNORECASE):
+                                lineno = seen_stmt.count("\n")
+                                self.optimizations[stmt] += [(lineno, "use a WITH clause rather than a nested subquery.")]
+                    elif isinstance(token, Identifier):
+                        if re.search("\s*\(\s*SELECT", str(token), re.IGNORECASE):
+                            lineno = seen_stmt.count("\n")
+                            self.optimizations[stmt] += [(lineno, "use a WITH clause rather than a nested subquery.")]
+                    elif isinstance(token, Comparison):
+                        if re.search("\s*\(\s*SELECT", str(token.left.value), re.IGNORECASE) \
+                            or re.search("\s*\(\s*SELECT", str(token.right.value), re.IGNORECASE):
+                            lineno = seen_stmt.count("\n")
+                            self.optimizations[stmt] += [(lineno, "use a WITH clause rather than a nested subquery.")]
+
+                    seen_stmt += str(token)
