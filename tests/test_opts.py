@@ -49,7 +49,8 @@ def test_column_selection(queries):
     correct_opts = {
         'test-query-2.txt': [1],
         'test-query-3.txt': [0],
-        'test-query-5.txt': [0]
+        'test-query-5.txt': [0],
+        'test-query-9.txt': [0]
     }
     test_ops = {}
 
@@ -79,7 +80,7 @@ def test_column_selection(queries):
             test_ops['test-query-' + str(ind + 1) + '.txt'] = adjusted_opts.keys()
 
 
-    assert len(test_ops) == 3
+    assert len(test_ops) == 4
     assert test_ops == correct_opts
 
 def test_partitions(queries):

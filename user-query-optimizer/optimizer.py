@@ -161,9 +161,9 @@ class Optimizer:
     #    Suggest filtering on partitioned columns
     #    Only make suggestion if user has not filtered on ANY partitioned columns
     #    Future: give indications about the size of data that will be scanned
-    #   (e.g. “you are filtering on a partitioned column, but it will be 2.2TB of data.
+    #   (e.g. you are filtering on a partitioned column, but it will be 2.2TB of data.
     #       Considering reducing the set of data further, using the same partitioned colum
-    #       or [other partitioned columns here]”)
+    #       or [other partitioned columns here])
     #   Line numbers: If there's a where clause without a partitioned column, line number = where clause;
     #                If there's no where clause, line number = first line of the query / CTE
     def __checkPartitions(self, parsed_queries):
