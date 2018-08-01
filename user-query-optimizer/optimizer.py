@@ -3,7 +3,7 @@ import sqlparse
 from collections import defaultdict
 from collections import OrderedDict
 from clickhouse_cli.ui.parseutils.ctes import extract_ctes
-from sqlparse.sql import IdentifierList, Identifier, Function
+from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 
 
@@ -57,10 +57,10 @@ class Optimizer:
             cte_list, remainder_query = ctes[0], ctes[1]
             for cte in cte_list:
                 cte_str = query[cte.start + 1:cte.stop - 1]
-                parsed_cte = sqlparse.parse(cte_str)
+                parsed_cte = sqlparse.parse(cte_str.strip())
                 parsed_queries += [parsed_cte]
 
-            parsed_remainder = sqlparse.parse(remainder_query)
+            parsed_remainder = sqlparse.parse(remainder_query.strip())
             parsed_queries += [parsed_remainder]
         return parsed_queries
 
@@ -71,9 +71,9 @@ class Optimizer:
         adjusted_opts = {}
         for k, v in self.optimizations.iteritems():
             for opt in v:
-                match = formatted_query.find(str(k))
+                match = formatted_query.find(str(k).strip())
                 if match != -1:
-                    adjusted_lineno = formatted_query[:(match + opt[0])].count("\n")
+                    adjusted_lineno = formatted_query[:match].count("\n") + opt[0]
                     adjusted_opts[adjusted_lineno] = opt[1]
         return adjusted_opts
 
@@ -105,13 +105,13 @@ class Optimizer:
     #   Consider other approximations later on (when to use approx_percentile?);
     #   Extracts SELECT identifiers, looks for "COUNT(DISTINCT ....)" and adds
     #   statement as key, and (line no, "use approximation") tuple to corresponding
-    #   list in self.optimizations dictionary if found; 
+    #   list in self.optimizations dictionary if found;
     #   Same for all databases I think?
 
     def __checkApproximates(self, parsed_queries):
         for stmt_list in parsed_queries:
-            lineno = 0
             for stmt in stmt_list:
+                lineno = 0
                 select_seen = False
                 for token in stmt.tokens:
                     if token.ttype is Newline:
@@ -133,9 +133,47 @@ class Optimizer:
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
     def __checkColumnSelection(self, parsed_queries):
-        pass
+        for stmt_list in parsed_queries:
+            for stmt in stmt_list:
+                lineno = 0
+                select_seen = False
+                for token in stmt.tokens:
+                    if token.ttype is Newline:
+                        lineno += 1
+                    if select_seen:
+                        if token.ttype is Keyword and token.value.upper() == "FROM":
+                            break
+                        else:
+                            if isinstance(token, IdentifierList):
+                                for identifier in token.get_identifiers():
+                                    if identifier.ttype is Wildcard:
+                                        self.optimizations[stmt] += [(lineno, "select columns explicitly")]
+                            elif token.ttype is Wildcard:
+                                self.optimizations[stmt] += [(lineno, "select columns explicitly")]
+
+                    if token.ttype is DML and token.value.upper() == "SELECT":
+                        select_seen = True
 
     # Optimization # 3
     #    Suggest filtering on partitioned columns
     def __checkPartitions(self, parsed_queries):
-        pass
+        for stmt_list in parsed_queries:
+            where_line = None
+            for stmt in stmt_list:
+                lineno = 0
+                partition_seen = False
+                for token in stmt.tokens:
+                    if token.ttype is Newline:
+                        lineno += 1
+                    if isinstance(token, Where):
+                        where_line = lineno
+                        for item in token.tokens:
+                            if isinstance(item, Comparison):
+                                if item.left.value in self.schema["partitions"] or \
+                                    item.right.value in self.schema["partitions"]:
+                                        partition_seen = True
+                                        break
+
+                if not partition_seen:
+                    lineno = 0 if where_line is None else where_line
+                    self.optimizations[stmt] += [(lineno, "filter on a partitioned column")]
