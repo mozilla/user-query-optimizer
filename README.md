@@ -17,7 +17,7 @@ Initial Optimization Checks
   * Using approximate algorithms (`approx_distinct()` instead of `COUNT(DISTINCT ...)`)
   * Selecting the columns the user wants explicitly, rather than using `(SELECT *)`
   * Filtering on partitioned columns
-  * Try to extract nested subqueries using a WITH clause. (in - progress)
+  * Try to extract nested subqueries using a WITH clause. (in progress)
 
 Other Stuff
   * Replace UNION with UNION ALL if duplicates do not need to be removed
@@ -26,4 +26,4 @@ Other Stuff
   * Specify GROUP BY targets with numbers for expressions (in-progress)
 
 ### Testing
-To test the optimizer on the test queries, run `py.test` (or `py.test -s` to see stdout) in the tests directory.
+To run unit tests, run `py.test` (or `py.test -s` to see stdout) in the tests directory.
