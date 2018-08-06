@@ -58,10 +58,10 @@ class Optimizer:
             for cte in cte_list:
                 cte_str = query[cte.start + 1:cte.stop - 1]
                 parsed_cte = sqlparse.parse(cte_str.strip())
-                parsed_queries += [parsed_cte]
+                parsed_queries.append(parsed_cte)
 
             parsed_remainder = sqlparse.parse(remainder_query.strip())
-            parsed_queries += [parsed_remainder]
+            parsed_queries.append(parsed_remainder)
         return parsed_queries
 
     # Find subquery in original query again, and adjust line numbers
@@ -122,11 +122,11 @@ class Optimizer:
                                     if re.search("COUNT\s*\(\s*DISTINCT", str(identifier), re.IGNORECASE):
                                         # newlines in sqlparse sometimes group clauses together - need to recalculate
                                         lineno = seen_stmt.count("\n")
-                                        self.optimizations[stmt] += [(lineno, "use approximation")]
+                                        self.optimizations[stmt].append((lineno, "use approximation"))
                             elif isinstance(token, Identifier):
                                 if re.search("COUNT\s*\(\s*DISTINCT", str(token), re.IGNORECASE):
                                     lineno = seen_stmt.count("\n")
-                                    self.optimizations[stmt] += [(lineno, "use approximation")]
+                                    self.optimizations[stmt].append((lineno, "use approximation"))
                     if token.ttype is DML and token.value.upper() == "SELECT":
                         select_seen = True
                     seen_stmt += str(token)
@@ -148,10 +148,10 @@ class Optimizer:
                                     if identifier.ttype is Wildcard:
                                         # newlines in sqlparse sometimes group clauses together - need to recalculate
                                         lineno = seen_stmt.count("\n")
-                                        self.optimizations[stmt] += [(lineno, "select columns explicitly")]
+                                        self.optimizations[stmt].append((lineno, "select columns explicitly"))
                             elif token.ttype is Wildcard:
                                 lineno = seen_stmt.count("\n")
-                                self.optimizations[stmt] += [(lineno, "select columns explicitly")]
+                                self.optimizations[stmt].append((lineno, "select columns explicitly"))
 
                     if token.ttype is DML and token.value.upper() == "SELECT":
                         select_seen = True
@@ -185,7 +185,7 @@ class Optimizer:
                     seen_stmt += str(token)
                 if not partition_seen:
                     lineno = 0 if where_line is None else where_line
-                    self.optimizations[stmt] += [(lineno, "filter on a partitioned column")]
+                    self.optimizations[stmt].append((lineno, "filter on a partitioned column"))
 
     # Optimization # 4
     #       Use a WITH clause rather than nested subqueries
@@ -198,15 +198,15 @@ class Optimizer:
                         for identifier in token.get_identifiers():
                             if re.search("\s*\(\s*SELECT", str(identifier), re.IGNORECASE):
                                 lineno = seen_stmt.count("\n")
-                                self.optimizations[stmt] += [(lineno, "use a WITH clause rather than a nested subquery.")]
+                                self.optimizations[stmt].append((lineno, "use a WITH clause rather than a nested subquery."))
                     elif isinstance(token, Identifier):
                         if re.search("\s*\(\s*SELECT", str(token), re.IGNORECASE):
                             lineno = seen_stmt.count("\n")
-                            self.optimizations[stmt] += [(lineno, "use a WITH clause rather than a nested subquery.")]
+                            self.optimizations[stmt].append((lineno, "use a WITH clause rather than a nested subquery."))
                     elif isinstance(token, Comparison):
                         if re.search("\s*\(\s*SELECT", str(token.left.value), re.IGNORECASE) \
                             or re.search("\s*\(\s*SELECT", str(token.right.value), re.IGNORECASE):
                             lineno = seen_stmt.count("\n")
-                            self.optimizations[stmt] += [(lineno, "use a WITH clause rather than a nested subquery.")]
+                            self.optimizations[stmt].append((lineno, "use a WITH clause rather than a nested subquery."))
 
                     seen_stmt += str(token)
