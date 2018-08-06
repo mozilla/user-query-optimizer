@@ -8,8 +8,7 @@ from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 
 
 class Optimizer:
-    def __init__(self, query, schema, db):
-        self.query = query
+    def __init__(self, schema, db):
         self.schema = schema
         # Database: Presto, Athena, or Spark
         self.db = db
@@ -18,10 +17,10 @@ class Optimizer:
 
 
     # Main public function to optimize a query
-    def optimize_query(self):
+    def optimize_query(self, query):
         # Parse queries and extract CTEs
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(self.query, strip_comments = True)).strip()
+        formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
         parsed_queries = parse_query(formatted_query)
 
         # Run all optimization checks
