@@ -17,7 +17,7 @@ def test_approximates(queries):
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
         schema = {} # Placeholder
-        op = optimizer.Optimizer(query, schema, "Presto")
+        op = optimizer.Optimizer(schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
@@ -57,7 +57,7 @@ def test_column_selection(queries):
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
         schema = {} # Placeholder
-        op = optimizer.Optimizer(query, schema, "Presto")
+        op = optimizer.Optimizer(schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
@@ -102,7 +102,7 @@ def test_partitions(queries):
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
         schema = {"partitions" : ["submission_date_s3", "app_name", "os"]} # Placeholder
-        op = optimizer.Optimizer(query, schema, "Presto")
+        op = optimizer.Optimizer(schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
@@ -143,7 +143,7 @@ def test_nested_subqueries(queries):
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
         schema = {} # Placeholder
-        op = optimizer.Optimizer(query, schema, "Presto")
+        op = optimizer.Optimizer(schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
