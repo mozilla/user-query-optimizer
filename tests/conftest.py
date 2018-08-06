@@ -12,7 +12,7 @@ def queries():
     for file in sorted(files, key = sort_files_by_number):
         f = open(file, 'r')
         query = f.read()
-        queries += [query]
+        queries.append(query)
         f.close()
 
     return queries
