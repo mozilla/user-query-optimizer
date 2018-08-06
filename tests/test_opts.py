@@ -22,18 +22,18 @@ def test_approximates(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
-        parsed_queries = op._Optimizer__parse_query(formatted_query)
+        parsed_queries = op._parse_query(formatted_query)
 
-        op._Optimizer__checkApproximates(parsed_queries)
+        op._checkApproximates(parsed_queries)
 
         # Find subquery in original query again, and adjust line numbers
-        adjusted_opts = op._Optimizer__adjust_linenums(formatted_query)
+        adjusted_opts = op._adjust_linenums(formatted_query)
 
         # Print query with line numbers
-        # op._Optimizer__print_query_lines(formatted_query)
+        # op._print_query_lines(formatted_query)
 
         # Print Optimizations
-        # op._Optimizer__print_optimizations(adjusted_opts)
+        # op._print_optimizations(adjusted_opts)
 
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:
@@ -62,18 +62,18 @@ def test_column_selection(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
-        parsed_queries = op._Optimizer__parse_query(formatted_query)
+        parsed_queries = op._parse_query(formatted_query)
 
-        op._Optimizer__checkColumnSelection(parsed_queries)
+        op._checkColumnSelection(parsed_queries)
 
         # Find subquery in original query again, and adjust line numbers
-        adjusted_opts = op._Optimizer__adjust_linenums(formatted_query)
+        adjusted_opts = op._adjust_linenums(formatted_query)
 
         # Print query with line numbers
-        # op._Optimizer__print_query_lines(formatted_query)
+        # op._print_query_lines(formatted_query)
 
         # Print Optimizations
-        # op._Optimizer__print_optimizations(adjusted_opts)
+        # op._print_optimizations(adjusted_opts)
 
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:
@@ -107,18 +107,18 @@ def test_partitions(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
-        parsed_queries = op._Optimizer__parse_query(formatted_query)
+        parsed_queries = op._parse_query(formatted_query)
 
-        op._Optimizer__checkPartitions(parsed_queries)
+        op._checkPartitions(parsed_queries)
 
         # Find subquery in original query again, and adjust line numbers
-        adjusted_opts = op._Optimizer__adjust_linenums(formatted_query)
+        adjusted_opts = op._adjust_linenums(formatted_query)
 
         # Print query with line numbers
-        # op._Optimizer__print_query_lines(formatted_query)
+        # op._print_query_lines(formatted_query)
 
         # Print Optimizations
-        # op._Optimizer__print_optimizations(adjusted_opts)
+        # op._print_optimizations(adjusted_opts)
 
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:
@@ -148,18 +148,18 @@ def test_nested_subqueries(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
-        parsed_queries = op._Optimizer__parse_query(formatted_query)
+        parsed_queries = op._parse_query(formatted_query)
 
-        op._Optimizer__extractNestedSubqueries(parsed_queries)
+        op._extractNestedSubqueries(parsed_queries)
 
         # Find subquery in original query again, and adjust line numbers
-        adjusted_opts = op._Optimizer__adjust_linenums(formatted_query)
+        adjusted_opts = op._adjust_linenums(formatted_query)
 
         # Print query with line numbers
-        op._Optimizer__print_query_lines(formatted_query)
+        op._print_query_lines(formatted_query)
 
         # Print Optimizations
-        op._Optimizer__print_optimizations(adjusted_opts)
+        op._print_optimizations(adjusted_opts)
 
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:
