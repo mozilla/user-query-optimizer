@@ -21,33 +21,33 @@ class Optimizer:
         # Parse queries and extract CTEs
         # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
-        parsed_queries = parse_query(formatted_query)
+        parsed_queries = self._parse_query(formatted_query)
 
         # Run all optimization checks
-        self.__runOptimizationChecks(parsed_queries)
+        self._runOptimizationChecks(parsed_queries)
 
         # Find subquery in original query again, and adjust line numbers
-        adjusted_opts = self.__adjust_linenums(formatted_query)
+        adjusted_opts = self._adjust_linenums(formatted_query)
 
         # Print query
-        self.__print_query_lines(formatted_query)
+        self._print_query_lines(formatted_query)
 
         # Print optimizations
-        self.__print_optimizations(adjusted_opts)
+        self._print_optimizations(adjusted_opts)
 
     # Run each optimiztion check on parsed queries and update optimizations dictionary
     # Input: parsed_queries
     # Output: None
-    def __runOptimizationChecks(self, parsed_queries):
+    def _runOptimizationChecks(self, parsed_queries):
         # Run tests
-        self.__checkApproximates(parsed_queries)
-        self.__checkColumnSelection(parsed_queries)
-        self.__checkPartitions(parsed_queries)
+        self._checkApproximates(parsed_queries)
+        self._checkColumnSelection(parsed_queries)
+        self._checkPartitions(parsed_queries)
 
     # Parse query using sqlparse and extract CTEs
     # Input: Original query formatted
     # Output: List of statements - each is a parsed query for each CTE in each query in the original
-    def __parse_query(self, formatted_query):
+    def _parse_query(self, formatted_query):
         parsed = sqlparse.parse(formatted_query)
         parsed_queries = []
         for query in parsed:
@@ -66,7 +66,7 @@ class Optimizer:
     # Find subquery in original query again, and adjust line numbers
     # Input: original formatted query
     # Returns: dictionary from line numbers in original formatted query -> list of optimizations
-    def __adjust_linenums(self, formatted_query):
+    def _adjust_linenums(self, formatted_query):
         adjusted_opts = {}
         for k, v in self.optimizations.iteritems():
             for opt in v:
@@ -79,7 +79,7 @@ class Optimizer:
     # Prints formatted query with line numbers
     # Input: formatted parse_query
     # Output: Print query to console with line numbers
-    def __print_query_lines(self, formatted_query):
+    def _print_query_lines(self, formatted_query):
         lines = formatted_query.split("\n")
         for ind, l in enumerate(lines):
             print(str(ind + 1) + " " + l)
@@ -88,7 +88,7 @@ class Optimizer:
     # Print optimizations (line numbers in original query, and optimization(s) for line)
     # Input: Optimizations dictionary with line numbers adjusted to original formatted query
     # Output: Print optimizations to console
-    def __print_optimizations(self, adjusted_opts):
+    def _print_optimizations(self, adjusted_opts):
         print("\nOptimizations")
         if len(adjusted_opts) == 0:
             print("\tNone found")
@@ -106,7 +106,7 @@ class Optimizer:
     #   list in self.optimizations dictionary if found;
     #   Same for all databases I think?
 
-    def __checkApproximates(self, parsed_queries):
+    def _checkApproximates(self, parsed_queries):
         for stmt_list in parsed_queries:
             for stmt in stmt_list:
                 seen_stmt = ""
@@ -132,7 +132,7 @@ class Optimizer:
 
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
-    def __checkColumnSelection(self, parsed_queries):
+    def _checkColumnSelection(self, parsed_queries):
         for stmt_list in parsed_queries:
             for stmt in stmt_list:
                 seen_stmt = ""
@@ -165,7 +165,7 @@ class Optimizer:
     #       or [other partitioned columns here])
     #   Line numbers: If there's a where clause without a partitioned column, line number = where clause;
     #                If there's no where clause, line number = first line of the query / CTE
-    def __checkPartitions(self, parsed_queries):
+    def _checkPartitions(self, parsed_queries):
         for stmt_list in parsed_queries:
             where_line = None
             for stmt in stmt_list:
@@ -188,7 +188,7 @@ class Optimizer:
 
     # Optimization # 4
     #       Use a WITH clause rather than nested subqueries
-    def __extractNestedSubqueries(self, parsed_queries):
+    def _extractNestedSubqueries(self, parsed_queries):
         for stmt_list in parsed_queries:
             for stmt in stmt_list:
                 seen_stmt = ""
