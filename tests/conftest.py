@@ -17,7 +17,14 @@ def queries():
 
     return queries
 
-
 def sort_files_by_number(value):
     numbers = re.compile(r'(\d+)')
     return int(numbers.split(value)[1])
+
+@pytest.fixture()
+def empty_schema():
+    return {}
+
+@pytest.fixture()
+def partition_schema():
+    return {"partitions" : ["submission_date_s3", "app_name", "os"]}
