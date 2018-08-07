@@ -6,7 +6,7 @@ sys.path.append('../user-query-optimizer')
 import optimizer
 import sqlparse
 
-def test_approximates(queries):
+def test_approximates(queries, empty_schema):
     print("\n")
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_opts = {
@@ -16,8 +16,7 @@ def test_approximates(queries):
 
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
-        schema = {} # Placeholder
-        op = optimizer.Optimizer(schema, "Presto")
+        op = optimizer.Optimizer(empty_schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
@@ -43,7 +42,7 @@ def test_approximates(queries):
     assert len(test_ops) == 1
     assert test_ops == correct_opts
 
-def test_column_selection(queries):
+def test_column_selection(queries, empty_schema):
     print("\n")
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_opts = {
@@ -56,8 +55,7 @@ def test_column_selection(queries):
 
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
-        schema = {} # Placeholder
-        op = optimizer.Optimizer(schema, "Presto")
+        op = optimizer.Optimizer(empty_schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
@@ -83,7 +81,7 @@ def test_column_selection(queries):
     assert len(test_ops) == 4
     assert test_ops == correct_opts
 
-def test_partitions(queries):
+def test_partitions(queries, partition_schema):
     print("\n")
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_opts = {
@@ -101,8 +99,7 @@ def test_partitions(queries):
 
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
-        schema = {"partitions" : ["submission_date_s3", "app_name", "os"]} # Placeholder
-        op = optimizer.Optimizer(schema, "Presto")
+        op = optimizer.Optimizer(partition_schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
@@ -131,7 +128,7 @@ def test_partitions(queries):
     assert len(test_ops) == 9
     assert test_ops == correct_opts
 
-def test_nested_subqueries(queries):
+def test_nested_subqueries(queries, empty_schema):
     print("\n")
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_opts = {
@@ -142,8 +139,7 @@ def test_nested_subqueries(queries):
     test_ops = {}
     for ind, query in enumerate(queries):
         # Instantiate optimizer object
-        schema = {} # Placeholder
-        op = optimizer.Optimizer(schema, "Presto")
+        op = optimizer.Optimizer(empty_schema, "Presto")
 
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
