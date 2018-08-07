@@ -2,6 +2,9 @@ import pytest
 import glob
 import sqlparse
 import re
+import sys
+sys.path.append('../user-query-optimizer')
+import optimizer
 
 @pytest.fixture()
 def queries():
@@ -22,9 +25,6 @@ def sort_files_by_number(value):
     return int(numbers.split(value)[1])
 
 @pytest.fixture()
-def empty_schema():
-    return {}
-
-@pytest.fixture()
-def partition_schema():
-    return {"partitions" : ["submission_date_s3", "app_name", "os"]}
+def op():
+    schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
+    return optimizer.Optimizer(schema, "Presto")
