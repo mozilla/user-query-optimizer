@@ -52,15 +52,10 @@ class Optimizer:
     # Output: None
     def _runOptimizationChecks(self, parsed_queries):
         # Run tests
-        # self._checkApproximates(parsed_queries)
         self.optimizer._checkApproximates(parsed_queries)
-
-        # self._checkColumnSelection(parsed_queries)
         self.optimizer._checkColumnSelection(parsed_queries)
-
-        # self._checkPartitions(parsed_queries)
         self.optimizer._checkPartitions(parsed_queries)
-        self._extractNestedSubqueries(parsed_queries)
+        self.optimizer._extractNestedSubqueries(parsed_queries)
 
     # Parse query using sqlparse and extract CTEs
     # Input: Original query formatted
@@ -115,27 +110,3 @@ class Optimizer:
             for k, v in OrderedDict(adjusted_opts).iteritems():
                 print("\tLine " + str(k + 1) + ": " + v + "\n")
         print("\n")
-
-    # Optimization # 4
-    #       Use a WITH clause rather than nested subqueries
-    def _extractNestedSubqueries(self, parsed_queries):
-        for stmt_list in parsed_queries:
-            for stmt in stmt_list:
-                seen_stmt = ""
-                for token in stmt.tokens:
-                    if isinstance(token, IdentifierList):
-                        for identifier in token.get_identifiers():
-                            if re.search("\s*\(\s*SELECT", str(identifier), re.IGNORECASE):
-                                lineno = seen_stmt.count("\n")
-                                self.optimizations[stmt].append((lineno, "use a WITH clause rather than a nested subquery."))
-                    elif isinstance(token, Identifier):
-                        if re.search("\s*\(\s*SELECT", str(token), re.IGNORECASE):
-                            lineno = seen_stmt.count("\n")
-                            self.optimizations[stmt].append((lineno, "use a WITH clause rather than a nested subquery."))
-                    elif isinstance(token, Comparison):
-                        if re.search("\s*\(\s*SELECT", str(token.left.value), re.IGNORECASE) \
-                            or re.search("\s*\(\s*SELECT", str(token.right.value), re.IGNORECASE):
-                            lineno = seen_stmt.count("\n")
-                            self.optimizations[stmt].append((lineno, "use a WITH clause rather than a nested subquery."))
-
-                    seen_stmt += str(token)
