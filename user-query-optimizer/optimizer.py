@@ -58,7 +58,8 @@ class Optimizer:
         # self._checkColumnSelection(parsed_queries)
         self.optimizer._checkColumnSelection(parsed_queries)
 
-        self._checkPartitions(parsed_queries)
+        # self._checkPartitions(parsed_queries)
+        self.optimizer._checkPartitions(parsed_queries)
         self._extractNestedSubqueries(parsed_queries)
 
     # Parse query using sqlparse and extract CTEs
@@ -114,36 +115,6 @@ class Optimizer:
             for k, v in OrderedDict(adjusted_opts).iteritems():
                 print("\tLine " + str(k + 1) + ": " + v + "\n")
         print("\n")
-
-    # Optimization # 3
-    #    Suggest filtering on partitioned columns
-    #    Only make suggestion if user has not filtered on ANY partitioned columns
-    #    Future: give indications about the size of data that will be scanned
-    #   (e.g. you are filtering on a partitioned column, but it will be 2.2TB of data.
-    #       Considering reducing the set of data further, using the same partitioned colum
-    #       or [other partitioned columns here])
-    #   Line numbers: If there's a where clause without a partitioned column, line number = where clause;
-    #                If there's no where clause, line number = first line of the query / CTE
-    def _checkPartitions(self, parsed_queries):
-        for stmt_list in parsed_queries:
-            where_line = None
-            for stmt in stmt_list:
-                seen_stmt = ""
-                partition_seen = False
-                for token in stmt.tokens:
-                    if isinstance(token, Where):
-                        # newlines in sqlparse sometimes group clauses together - need to recalculate
-                        where_line = seen_stmt.count("\n")
-                        for item in token.tokens:
-                            if isinstance(item, Comparison):
-                                if item.left.value in self.schema["partitions"] or \
-                                    item.right.value in self.schema["partitions"]:
-                                        partition_seen = True
-                                        break
-                    seen_stmt += str(token)
-                if not partition_seen:
-                    lineno = 0 if where_line is None else where_line
-                    self.optimizations[stmt].append((lineno, "filter on a partitioned column"))
 
     # Optimization # 4
     #       Use a WITH clause rather than nested subqueries
