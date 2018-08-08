@@ -3,6 +3,7 @@ sys.path.append('../user-query-optimizer/optimizations')
 import approximates
 import column_selection
 import partitions
+import nested_subqueries
 
 class PrestoOptimizer:
     def __init__(self, optimizations, schema):
@@ -17,3 +18,6 @@ class PrestoOptimizer:
 
     def _checkPartitions(self, parsed_queries):
         partitions.checkPartitions(self.optimizations, self.schema, parsed_queries)
+
+    def _extractNestedSubqueries(self, parsed_queries):
+        nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
