@@ -55,7 +55,9 @@ class Optimizer:
         # self._checkApproximates(parsed_queries)
         self.optimizer._checkApproximates(parsed_queries)
 
-        self._checkColumnSelection(parsed_queries)
+        # self._checkColumnSelection(parsed_queries)
+        self.optimizer._checkColumnSelection(parsed_queries)
+
         self._checkPartitions(parsed_queries)
         self._extractNestedSubqueries(parsed_queries)
 
@@ -112,33 +114,6 @@ class Optimizer:
             for k, v in OrderedDict(adjusted_opts).iteritems():
                 print("\tLine " + str(k + 1) + ": " + v + "\n")
         print("\n")
-
-
-    # Optimization # 2
-    #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
-    def _checkColumnSelection(self, parsed_queries):
-        for stmt_list in parsed_queries:
-            for stmt in stmt_list:
-                seen_stmt = ""
-                select_seen = False
-                for token in stmt.tokens:
-                    if select_seen:
-                        if token.ttype is Keyword and token.value.upper() == "FROM":
-                            break
-                        else:
-                            if isinstance(token, IdentifierList):
-                                for identifier in token.get_identifiers():
-                                    if identifier.ttype is Wildcard:
-                                        # newlines in sqlparse sometimes group clauses together - need to recalculate
-                                        lineno = seen_stmt.count("\n")
-                                        self.optimizations[stmt].append((lineno, "select columns explicitly"))
-                            elif token.ttype is Wildcard:
-                                lineno = seen_stmt.count("\n")
-                                self.optimizations[stmt].append((lineno, "select columns explicitly"))
-
-                    if token.ttype is DML and token.value.upper() == "SELECT":
-                        select_seen = True
-                    seen_stmt += str(token)
 
     # Optimization # 3
     #    Suggest filtering on partitioned columns
