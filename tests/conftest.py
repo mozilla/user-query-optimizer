@@ -27,4 +27,4 @@ def sort_files_by_number(value):
 @pytest.fixture()
 def op():
     schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
-    return optimizer.Optimizer(schema, "Presto")
+    return optimizer.Optimizer(schema, "presto")

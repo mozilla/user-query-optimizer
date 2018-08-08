@@ -5,15 +5,25 @@ from collections import OrderedDict
 from clickhouse_cli.ui.parseutils.ctes import extract_ctes
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
+from presto_optimizer import PrestoOptimizer
+from athena_optimizer import AthenaOptimizer
+from spark_optimizer import SparkOptimizer
 
 
 class Optimizer:
     def __init__(self, schema, db):
         self.schema = schema
-        # Database: Presto, Athena, or Spark
-        self.db = db
         # Dictionary: statement -> list of tuples (lineno, optimization)
         self.optimizations = defaultdict(list)
+        # DB-specific optimizer
+        if db == "presto":
+            self.optimizer = PrestoOptimizer(self.optimizations, schema)
+        elif db == "athena":
+            self.optimizer = AthenaOptimizer(self.optimizations, schema)
+        elif db == "spark":
+            self.optimizer = SparkOptimizer(self.optimizations, schema)
+        else:
+            raise ValueError("Database must be one of: 'presto', 'athena', 'spark'")
 
 
     # Main public function to optimize a query
@@ -35,14 +45,19 @@ class Optimizer:
         # Print optimizations
         self._print_optimizations(adjusted_opts)
 
+        return adjusted_opts
+
     # Run each optimiztion check on parsed queries and update optimizations dictionary
     # Input: parsed_queries
     # Output: None
     def _runOptimizationChecks(self, parsed_queries):
         # Run tests
-        self._checkApproximates(parsed_queries)
+        # self._checkApproximates(parsed_queries)
+        self.optimizer._checkApproximates(parsed_queries)
+
         self._checkColumnSelection(parsed_queries)
         self._checkPartitions(parsed_queries)
+        self._extractNestedSubqueries(parsed_queries)
 
     # Parse query using sqlparse and extract CTEs
     # Input: Original query formatted
@@ -98,37 +113,6 @@ class Optimizer:
                 print("\tLine " + str(k + 1) + ": " + v + "\n")
         print("\n")
 
-    # Optimization #1
-    #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...));
-    #   Consider other approximations later on (when to use approx_percentile?);
-    #   Extracts SELECT identifiers, looks for "COUNT(DISTINCT ....)" and adds
-    #   statement as key, and (line no, "use approximation") tuple to corresponding
-    #   list in self.optimizations dictionary if found;
-    #   Same for all databases I think?
-
-    def _checkApproximates(self, parsed_queries):
-        for stmt_list in parsed_queries:
-            for stmt in stmt_list:
-                seen_stmt = ""
-                select_seen = False
-                for token in stmt.tokens:
-                    if select_seen:
-                        if token.ttype is Keyword and token.value.upper() == "FROM":
-                            break
-                        else:
-                            if isinstance(token, IdentifierList):
-                                for identifier in token.get_identifiers():
-                                    if re.search("COUNT\s*\(\s*DISTINCT", str(identifier), re.IGNORECASE):
-                                        # newlines in sqlparse sometimes group clauses together - need to recalculate
-                                        lineno = seen_stmt.count("\n")
-                                        self.optimizations[stmt].append((lineno, "use approximation"))
-                            elif isinstance(token, Identifier):
-                                if re.search("COUNT\s*\(\s*DISTINCT", str(token), re.IGNORECASE):
-                                    lineno = seen_stmt.count("\n")
-                                    self.optimizations[stmt].append((lineno, "use approximation"))
-                    if token.ttype is DML and token.value.upper() == "SELECT":
-                        select_seen = True
-                    seen_stmt += str(token)
 
     # Optimization # 2
     #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)
