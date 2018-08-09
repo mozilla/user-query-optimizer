@@ -57,6 +57,18 @@ class Optimizer:
         self.optimizer._checkPartitions(parsed_queries)
         self.optimizer._extractNestedSubqueries(parsed_queries)
 
+    def _checkApproximates(self, parsed_queries):
+        self.optimizer._checkApproximates(parsed_queries)
+
+    def _checkColumnSelection(self, parsed_queries):
+        self.optimizer._checkColumnSelection(parsed_queries)
+
+    def _checkPartitions(self, parsed_queries):
+        self.optimizer._checkPartitions(parsed_queries)
+
+    def _extractNestedSubqueries(self, parsed_queries):
+        self.optimizer._extractNestedSubqueries(parsed_queries)
+
     # Parse query using sqlparse and extract CTEs
     # Input: Original query formatted
     # Output: List of statements - each is a parsed query for each CTE in each query in the original
