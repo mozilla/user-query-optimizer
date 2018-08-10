@@ -8,7 +8,7 @@ import sqlparse
 
 def test_approximates(queries, op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
-    correct_opts = {
+    correct_ops = {
         'test-query-3.txt': [0]
     }
     test_ops = {}
@@ -36,4 +36,4 @@ def test_approximates(queries, op):
 
 
     assert len(test_ops) == 1
-    assert test_ops == correct_opts
+    assert test_ops == correct_ops

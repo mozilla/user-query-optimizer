@@ -8,7 +8,7 @@ import sqlparse
 
 def test_nested_subqueries(queries, op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
-    correct_opts = {
+    correct_ops = {
         'test-query-6.txt': [7],
         'test-query-7.txt': [0],
         'test-query-10.txt': [4]
@@ -38,4 +38,4 @@ def test_nested_subqueries(queries, op):
 
 
     assert len(test_ops) == 3
-    assert test_ops == correct_opts
+    assert test_ops == correct_ops

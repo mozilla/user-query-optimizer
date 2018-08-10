@@ -8,7 +8,7 @@ import sqlparse
 
 def test_partitions(queries, op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
-    correct_opts = {
+    correct_ops = {
         'test-query-1.txt': [0],
         'test-query-2.txt': [10, 17, 22, 35],
         'test-query-3.txt': [0],
@@ -47,4 +47,4 @@ def test_partitions(queries, op):
             test_ops[k] = sorted(v)
 
     assert len(test_ops) == 9
-    assert test_ops == correct_opts
+    assert test_ops == correct_ops
