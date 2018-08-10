@@ -8,7 +8,7 @@ import sqlparse
 
 def test_column_selection(queries, op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
-    correct_opts = {
+    correct_ops = {
         'test-query-2.txt': [1],
         'test-query-3.txt': [0],
         'test-query-5.txt': [0],
@@ -39,4 +39,4 @@ def test_column_selection(queries, op):
 
 
     assert len(test_ops) == 4
-    assert test_ops == correct_opts
+    assert test_ops == correct_ops
