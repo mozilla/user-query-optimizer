@@ -29,11 +29,11 @@ def checkApproximates(optimizations, parsed_queries, *db_params):
                                 if re.search("COUNT\s*\(\s*DISTINCT", str(identifier), re.IGNORECASE):
                                     # newlines in sqlparse sometimes group clauses together - need to recalculate
                                     lineno = seen_stmt.count("\n")
-                                    optimizations[stmt].append((lineno, "use approximation"))
+                                    optimizations[stmt].append((lineno, "use approximation - " + db_params[0]))
                         elif isinstance(token, Identifier):
                             if re.search("COUNT\s*\(\s*DISTINCT", str(token), re.IGNORECASE):
                                 lineno = seen_stmt.count("\n")
-                                optimizations[stmt].append((lineno, "use approximation"))
+                                optimizations[stmt].append((lineno, "use approximation - " + db_params[0]))
                 if token.ttype is DML and token.value.upper() == "SELECT":
                     select_seen = True
                 seen_stmt += str(token)
