@@ -92,13 +92,13 @@ class Optimizer:
     # Input: original formatted query
     # Returns: dictionary from line numbers in original formatted query -> list of optimizations
     def _adjust_linenums(self, formatted_query):
-        adjusted_opts = {}
+        adjusted_opts = defaultdict(list)
         for k, v in self.optimizations.iteritems():
             for opt in v:
                 match = formatted_query.find(str(k).strip())
                 if match != -1:
                     adjusted_lineno = formatted_query[:match].count("\n") + opt[0]
-                    adjusted_opts[adjusted_lineno] = opt[1]
+                    adjusted_opts[adjusted_lineno].append(opt[1])
         return adjusted_opts
 
     # Prints formatted query with line numbers
@@ -120,5 +120,5 @@ class Optimizer:
         else:
             # Print optimizations
             for k, v in OrderedDict(adjusted_opts).iteritems():
-                print("\tLine " + str(k + 1) + ": " + v + "\n")
+                print("\tLine " + str(k + 1) + ": " + ", ".join(v) + "\n")
         print("\n")
