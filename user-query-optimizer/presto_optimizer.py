@@ -11,7 +11,7 @@ class PrestoOptimizer:
         self.schema = schema
 
     def _checkApproximates(self, parsed_queries):
-        approximates.checkApproximates(self.optimizations, parsed_queries)
+        approximates.checkApproximates(self.optimizations, parsed_queries, "approx_distinct")
 
     def _checkColumnSelection(self, parsed_queries):
         column_selection.checkColumnSelection(self.optimizations, parsed_queries)
