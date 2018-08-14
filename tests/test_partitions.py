@@ -6,7 +6,7 @@ sys.path.append('../user-query-optimizer')
 import optimizer
 import sqlparse
 
-def test_partitions(queries, op):
+def test_partitions(queries, presto_op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_ops = {
         'test-query-1.txt': [0],
@@ -25,12 +25,12 @@ def test_partitions(queries, op):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
         formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
-        parsed_queries = op._parse_query(formatted_query)
+        parsed_queries = presto_op._parse_query(formatted_query)
 
-        op._checkPartitions(parsed_queries)
+        presto_op._checkPartitions(parsed_queries)
 
         # Find subquery in original query again, and adjust line numbers
-        adjusted_opts = op._adjust_linenums(formatted_query)
+        adjusted_opts = presto_op._adjust_linenums(formatted_query)
 
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:

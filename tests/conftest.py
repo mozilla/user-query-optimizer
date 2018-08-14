@@ -25,6 +25,16 @@ def sort_files_by_number(value):
     return int(numbers.split(value)[1])
 
 @pytest.fixture()
-def op():
+def presto_op():
     schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
     return optimizer.Optimizer(schema, "presto")
+
+@pytest.fixture()
+def athena_op():
+    schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
+    return optimizer.Optimizer(schema, "athena")
+
+@pytest.fixture()
+def spark_op():
+    schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
+    return optimizer.Optimizer(schema, "spark")
