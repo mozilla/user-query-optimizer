@@ -6,7 +6,7 @@ sys.path.append('../user-query-optimizer')
 import optimizer
 import sqlparse
 
-def test_all(queries, op):
+def test_all(queries, presto_op):
     correct_ops = {
         'test-query-1.txt': {0: ['filter on a partitioned column']},
         'test-query-2.txt': {1: ['select columns explicitly'],
@@ -34,7 +34,7 @@ def test_all(queries, op):
     test_ops = {}
 
     for ind, query in enumerate(queries):
-        adjusted_opts = op.optimize_query(query)
+        adjusted_opts = presto_op.optimize_query(query)
 
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:
