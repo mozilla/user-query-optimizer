@@ -22,6 +22,7 @@ Initial Optimization Checks
   * Eliminate date_parse overhead
 
 Other Stuff
+  * Eliminate date_parse overhead
   * Replace UNION with UNION ALL if duplicates do not need to be removed
   * Aggregate a series of LIKE clauses into one regexp_like expression
   * Push down a complex join condition into a sub query

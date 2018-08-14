@@ -27,12 +27,6 @@ def test_column_selection(queries, op):
         # Find subquery in original query again, and adjust line numbers
         adjusted_opts = op._adjust_linenums(formatted_query)
 
-        # Print query with line numbers
-        # op._print_query_lines(formatted_query)
-
-        # Print Optimizations
-        # op._print_optimizations(adjusted_opts)
-
         # Add optimizations for current query to dictionary for all test files
         if len(adjusted_opts) > 0:
             test_ops['test-query-' + str(ind + 1) + '.txt'] = adjusted_opts.keys()
