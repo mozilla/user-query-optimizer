@@ -2,7 +2,7 @@ import re
 from collections import defaultdict
 from collections import OrderedDict
 import sys
-sys.path.append('../user-query-optimizer')
+sys.path.append('../user_query_optimizer')
 import optimizer
 import sqlparse
 

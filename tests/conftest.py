@@ -3,8 +3,8 @@ import glob
 import sqlparse
 import re
 import sys
-sys.path.append('../user-query-optimizer')
-import optimizer
+sys.path.append('../')
+from user_query_optimizer import get_optimizer
 
 @pytest.fixture()
 def queries():
@@ -27,14 +27,17 @@ def sort_files_by_number(value):
 @pytest.fixture()
 def presto_op():
     schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
-    return optimizer.Optimizer(schema, "presto")
+    optimizer = get_optimizer("presto", schema)
+    return optimizer
 
 @pytest.fixture()
 def athena_op():
     schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
-    return optimizer.Optimizer(schema, "athena")
+    optimizer = get_optimizer("athena", schema)
+    return optimizer
 
 @pytest.fixture()
 def spark_op():
     schema = {"partitions" : ["submission_date_s3", "app_name", "os"]}
-    return optimizer.Optimizer(schema, "spark")
+    optimizer = get_optimizer("spark", schema)
+    return optimizer

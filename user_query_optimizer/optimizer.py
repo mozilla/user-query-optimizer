@@ -5,26 +5,10 @@ from collections import OrderedDict
 from clickhouse_cli.ui.parseutils.ctes import extract_ctes
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
-from presto_optimizer import PrestoOptimizer
-from athena_optimizer import AthenaOptimizer
-from spark_optimizer import SparkOptimizer
-
 
 class Optimizer:
-    def __init__(self, schema, db):
+    def __init__(self, schema):
         self.schema = schema
-        # Dictionary: statement -> list of tuples (lineno, optimization)
-        self.optimizations = defaultdict(list)
-        # DB-specific optimizer
-        if db == "presto":
-            self.optimizer = PrestoOptimizer(self.optimizations, schema)
-        elif db == "athena":
-            self.optimizer = AthenaOptimizer(self.optimizations, schema)
-        elif db == "spark":
-            self.optimizer = SparkOptimizer(self.optimizations, schema)
-        else:
-            raise ValueError("Database must be one of: 'presto', 'athena', 'spark'")
-
 
     # Main public function to optimize a query
     def optimize_query(self, query):
@@ -52,22 +36,11 @@ class Optimizer:
     # Output: None
     def _runOptimizationChecks(self, parsed_queries):
         # Run tests
-        self.optimizer._checkApproximates(parsed_queries)
-        self.optimizer._checkColumnSelection(parsed_queries)
-        self.optimizer._checkPartitions(parsed_queries)
-        self.optimizer._extractNestedSubqueries(parsed_queries)
+        self._checkApproximates(parsed_queries)
+        self._checkColumnSelection(parsed_queries)
+        self._checkPartitions(parsed_queries)
+        self._extractNestedSubqueries(parsed_queries)
 
-    def _checkApproximates(self, parsed_queries):
-        self.optimizer._checkApproximates(parsed_queries)
-
-    def _checkColumnSelection(self, parsed_queries):
-        self.optimizer._checkColumnSelection(parsed_queries)
-
-    def _checkPartitions(self, parsed_queries):
-        self.optimizer._checkPartitions(parsed_queries)
-
-    def _extractNestedSubqueries(self, parsed_queries):
-        self.optimizer._extractNestedSubqueries(parsed_queries)
 
     # Parse query using sqlparse and extract CTEs
     # Input: Original query formatted
