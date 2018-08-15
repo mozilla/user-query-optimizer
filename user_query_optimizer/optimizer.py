@@ -39,6 +39,7 @@ class Optimizer:
         self._checkApproximates(parsed_queries)
         self._checkColumnSelection(parsed_queries)
         self._checkPartitions(parsed_queries)
+        self._checkOrdering(parsed_queries)
         self._extractNestedSubqueries(parsed_queries)
 
 
