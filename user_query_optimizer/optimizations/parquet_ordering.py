@@ -32,6 +32,7 @@ def checkOrdering(optimizations, schema, parsed_queries, *db_params):
                 lineno = 0 if where_line is None else where_line
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 optimizations[stmt].append((lineno, "Filtering on ordered columns can improve performance. Here are some that you aren't filtering on: " + ', '.join(list(ordering))))
 =======
                 optimizations[stmt].append((lineno, "recommended columns to filter from greatest to least performance boost: " + ", ".join(schema["ordering"])))
@@ -39,3 +40,6 @@ def checkOrdering(optimizations, schema, parsed_queries, *db_params):
 =======
                 optimizations[stmt].append((lineno, "Filtering on ordered columns can improve performance. Here are some that you aren't filtering on: " + ', '.join(list(ordering))))
 >>>>>>> fix tests; add more info to optimization message
+=======
+                optimizations[stmt].append((lineno, "recommended columns to filter from greatest to least performance boost: " + ", ".join(schema["ordering"])))
+>>>>>>> class inheritance restructuring
