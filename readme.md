@@ -5,13 +5,13 @@ This API will help you optimize your sql queries for better performance.
 ## Workflow
 
 ### Create the optimizer object
-Object specific to a single (query, schema) pair
-e.g. `optimizer = Optimizer(query, schema)`
+Object specific to a single (database, schema) pair
+e.g. `optimizer = get_optimizer("presto", schema)`
 
-### Get optimization hints using `optimize_query()`
+### Get optimization hints using `optimize_query(query)`
 Output: optimization hints
 
-Usage: `optimizer.optimize_query()`
+Usage: `presto_op.optimize_query(query)`
 
 Initial Optimization Checks
   * Using approximate algorithms (`approx_distinct()` instead of `COUNT(DISTINCT ...)`)
