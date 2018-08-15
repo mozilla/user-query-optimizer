@@ -23,6 +23,9 @@ class SparkOptimizer(Optimizer):
     def _checkPartitions(self, parsed_queries):
         partitions.checkPartitions(self.optimizations, self.schema, parsed_queries)
 
+    def _checkOrdering(self, parsed_queries):
+        parquet_ordering.checkOrdering(self.optimizations, self.schema, parsed_queries)
+
     def _extractNestedSubqueries(self, parsed_queries):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
 

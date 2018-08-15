@@ -27,20 +27,23 @@ def sort_files_by_number(value):
 @pytest.fixture()
 def presto_op():
     schema = {"name": "telemetry_core_parquet",
-              "partitions" : ["submission_date_s3", "app_name", "os"]}
+              "partitions" : ["submission_date_s3", "app_name", "os"],
+              "ordering": ["submission_date_s3", "app_name", "os"]}
     optimizer = get_optimizer("presto", schema)
     return optimizer
 
 @pytest.fixture()
 def athena_op():
     schema = {"name": "telemetry_core_parquet",
-              "partitions" : ["submission_date_s3", "app_name", "os"]}
+              "partitions" : ["submission_date_s3", "app_name", "os"],
+              "ordering": ["submission_date_s3", "app_name", "os"]}
     optimizer = get_optimizer("athena", schema)
     return optimizer
 
 @pytest.fixture()
 def spark_op():
     schema = {"name": "telemetry_core_parquet",
-              "partitions" : ["submission_date_s3", "app_name", "os"]}
+              "partitions" : ["submission_date_s3", "app_name", "os"],
+              "ordering": ["submission_date_s3", "app_name", "os"]}
     optimizer = get_optimizer("spark", schema)
     return optimizer

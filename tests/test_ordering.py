@@ -14,7 +14,11 @@ def test_ordering(queries, presto_op):
         'test-query-3.txt': [0],
         'test-query-4.txt': [0, 4],
         'test-query-5.txt': [3],
+<<<<<<< HEAD
         'test-query-6.txt': [0],
+=======
+        'test-query-6.txt': [0], # for some reason, sqlparse not recognizing two statemnets
+>>>>>>> class inheritance restructuring
         'test-query-8.txt': [0],
         'test-query-9.txt': [3],
         'test-query-10.txt': [0]
