@@ -18,6 +18,7 @@ Initial Optimization Checks
   * Selecting the columns the user wants explicitly, rather than using `(SELECT *)`
   * Filtering on partitioned columns
   * Try to extract nested subqueries using a WITH clause.
+  * Filter using most effective columns by parquet file ordering
 
 Other Stuff
   * Eliminate date_parse overhead
