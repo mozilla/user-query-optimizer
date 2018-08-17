@@ -1,3 +1,3 @@
 SELECT *, COUNT(DISTINCT client_id)
-FROM main_summary
+FROM telemetry_core_parquet
 GROUP BY locale

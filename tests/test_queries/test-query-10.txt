@@ -1,0 +1,12 @@
+SELECT job_id,AVG(salary)
+SELECT job_id,AVG(salary)
+FROM telemetry_core_parquet
+GROUP BY job_id
+HAVING AVG(salary)<
+(SELECT MAX(myavg) from (select job_id,AVG(min_salary) as myavg
+FROM jobs
+WHERE job_id IN
+(SELECT job_id FROM job_history
+WHERE department_id
+BETWEEN 50 AND 100)
+GROUP BY job_id) ss);
