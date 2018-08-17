@@ -40,6 +40,7 @@ class Optimizer:
         self._checkColumnSelection(parsed_queries)
         self._checkPartitions(parsed_queries)
         self._extractNestedSubqueries(parsed_queries)
+        self._checkDateParse(parsed_queries)
 
 
     # Parse query using sqlparse and extract CTEs

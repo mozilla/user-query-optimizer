@@ -10,10 +10,8 @@ def test_all(queries, presto_op):
     correct_ops = {
         'test-query-1.txt': {0: ['filter on a partitioned column']},
         'test-query-2.txt': {1: ['select columns explicitly'],
-                            10: ['filter on a partitioned column'],
-                            35: ['filter on a partitioned column'],
-                            22: ['filter on a partitioned column'],
-                            17: ['filter on a partitioned column']},
+                             3: ['recommended columns to filter from greatest to least performance boost: submission_date_s3, app_name, os',
+                                 "eliminate overhead by using 'submission_date_s3 >= date_format(...) rather than date_parse(submission_date_s3, '%Y%m%d') >= ..."]},
         'test-query-3.txt': {0: ['use approximation - approx_distinct',
                                 'select columns explicitly',
                                 'filter on a partitioned column']},
