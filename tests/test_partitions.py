@@ -10,12 +10,10 @@ def test_partitions(queries, presto_op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_ops = {
         'test-query-1.txt': [0],
-        'test-query-2.txt': [10, 17, 22, 35],
         'test-query-3.txt': [0],
         'test-query-4.txt': [0, 4],
         'test-query-5.txt': [3],
         'test-query-6.txt': [0], # for some reason, sqlparse not recognizing two statemnets
-        'test-query-7.txt': [0],
         'test-query-8.txt': [0],
         'test-query-10.txt': [0]
     }
@@ -40,5 +38,5 @@ def test_partitions(queries, presto_op):
         for k, v in test_ops.iteritems():
             test_ops[k] = sorted(v)
 
-    assert len(test_ops) == 9
+    assert len(test_ops) == 7
     assert test_ops == correct_ops
