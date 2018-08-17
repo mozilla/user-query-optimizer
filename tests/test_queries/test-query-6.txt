@@ -1,5 +1,5 @@
 SELECT a.date, b.name FROM
-left_table a
+telemetry_core_parquet a
 JOIN right_table b
 ON a.date = CAST((b.year * 10000 + b.month * 100 + b.day) as VARCHAR)
 

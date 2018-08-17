@@ -1,7 +1,7 @@
-SELECT column_name(s) FROM table1
+SELECT column_name(s) FROM telemetry_core_parquet
 UNION
 SELECT column_name(s) FROM table2;
 
-SELECT column_name(s) FROM table1
+SELECT column_name(s) FROM telemetry_core_parquet
 UNION ALL
 SELECT column_name(s) FROM table2;
