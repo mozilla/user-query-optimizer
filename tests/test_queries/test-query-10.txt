@@ -1,6 +1,6 @@
 SELECT job_id,AVG(salary)
 SELECT job_id,AVG(salary)
-FROM employees
+FROM telemetry_core_parquet
 GROUP BY job_id
 HAVING AVG(salary)<
 (SELECT MAX(myavg) from (select job_id,AVG(min_salary) as myavg

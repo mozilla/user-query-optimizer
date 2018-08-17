@@ -3,6 +3,7 @@ import sqlparse
 from collections import defaultdict
 from collections import OrderedDict
 from clickhouse_cli.ui.parseutils.ctes import extract_ctes
+from clickhouse_cli.ui.parseutils.tables import extract_tables
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 
@@ -19,6 +20,9 @@ def checkPartitions(optimizations, schema, parsed_queries, *db_params):
     for stmt_list in parsed_queries:
         where_line = None
         for stmt in stmt_list:
+            tables = [str(tr.name) for tr in extract_tables(str(stmt))]
+            if schema["name"] not in tables:
+                continue
             seen_stmt = ""
             partition_seen = False
             for token in stmt.tokens:
