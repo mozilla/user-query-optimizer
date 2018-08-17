@@ -3,7 +3,7 @@
 
 WITH sample AS (
    SELECT *
-   FROM default.core_client_count
+   FROM telemetry_core_parquet
    WHERE
     created_date > date_format(current_date - interval '5' month, '%Y-%m-%d')
     AND created_date < date_format(current_date - interval '7' day, '%Y-%m-%d')
