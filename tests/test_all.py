@@ -9,11 +9,7 @@ import sqlparse
 def test_all(queries, presto_op):
     correct_ops = {
         'test-query-1.txt': {0: ['filter on a partitioned column']},
-        'test-query-2.txt': {1: ['select columns explicitly'],
-                            10: ['filter on a partitioned column'],
-                            35: ['filter on a partitioned column'],
-                            22: ['filter on a partitioned column'],
-                            17: ['filter on a partitioned column']},
+        'test-query-2.txt': {1: ['select columns explicitly']},
         'test-query-3.txt': {0: ['use approximation - approx_distinct',
                                 'select columns explicitly',
                                 'filter on a partitioned column']},
@@ -23,8 +19,7 @@ def test_all(queries, presto_op):
                             3: ['filter on a partitioned column']},
         'test-query-6.txt': {0: ['filter on a partitioned column'],
                             7: ['use a WITH clause rather than a nested subquery.']},
-        'test-query-7.txt': {0: ['filter on a partitioned column',
-                                'use a WITH clause rather than a nested subquery.']},
+        'test-query-7.txt': {0: ['use a WITH clause rather than a nested subquery.']},
         'test-query-8.txt': {0: ['filter on a partitioned column']},
         'test-query-9.txt': {0: ['select columns explicitly']},
         'test-query-10.txt': {0: ['filter on a partitioned column'],
