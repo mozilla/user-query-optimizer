@@ -16,7 +16,12 @@ Usage: `presto_op.optimize_query(query)`
 Initial Optimization Checks
   * Using approximate algorithms (`approx_distinct()` instead of `COUNT(DISTINCT ...)`)
   * Selecting the columns the user wants explicitly, rather than using `(SELECT *)`
-  * Filtering on partitioned columns (Not yet implemented)
+  * Filtering on partitioned columns
+  * Try to extract nested subqueries using a WITH clause.
+  * Filter using most effective columns by parquet file ordering
+
+Other Stuff
+  * Eliminate date_parse overhead
   * Replace UNION with UNION ALL if duplicates do not need to be removed
   * Aggregate a series of LIKE clauses into one regexp_like expression
   * Push down a complex join condition into a sub query
