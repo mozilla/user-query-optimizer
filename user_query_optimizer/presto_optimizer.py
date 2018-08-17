@@ -7,6 +7,7 @@ import column_selection
 import partitions
 import nested_subqueries
 import parquet_ordering
+import dates
 
 class PrestoOptimizer(Optimizer):
     def __init__(self, schema):
@@ -27,3 +28,6 @@ class PrestoOptimizer(Optimizer):
 
     def _extractNestedSubqueries(self, parsed_queries):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
+
+    def _checkDateParse(self, parsed_queries):
+        dates.checkDateParse(self.optimizations, parsed_queries)

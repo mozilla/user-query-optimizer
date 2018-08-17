@@ -27,3 +27,6 @@ class AthenaOptimizer(Optimizer):
 
     def _extractNestedSubqueries(self, parsed_queries):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
+
+    def _checkDateParse(self, parsed_queries):
+        dates.checkDateParse(self.optimizations, parsed_queries)

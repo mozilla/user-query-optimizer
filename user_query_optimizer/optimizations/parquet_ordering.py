@@ -7,7 +7,7 @@ from clickhouse_cli.ui.parseutils.tables import extract_tables
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 
-# Optimization # 4
+# Optimization # 5
 def checkOrdering(optimizations, schema, parsed_queries, *db_params):
     for stmt_list in parsed_queries:
         where_line = None

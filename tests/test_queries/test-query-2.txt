@@ -6,7 +6,7 @@ WITH sample AS (
    FROM telemetry_core_parquet
    WHERE
     created_date > date_format(current_date - interval '5' month, '%Y-%m-%d')
-    AND created_date < date_format(current_date - interval '7' day, '%Y-%m-%d')
+    AND date_parse(submission_date_s3, '%Y%m%d') > current_date - interval '6' month
     AND app_name = 'Fennec'
     AND os = 'Android'
     AND channel = 'release'
