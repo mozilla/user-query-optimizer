@@ -6,6 +6,8 @@ import approximates
 import column_selection
 import partitions
 import nested_subqueries
+import parquet_ordering
+import dates
 
 class AthenaOptimizer(Optimizer):
     def __init__(self, schema):
