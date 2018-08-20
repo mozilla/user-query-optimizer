@@ -18,9 +18,10 @@ Initial Optimization Checks
   * Selecting the columns the user wants explicitly, rather than using `(SELECT *)`
   * Filtering on partitioned columns
   * Try to extract nested subqueries using a WITH clause.
+  * Suggest filtering on most effective columns, by parquet-file ordering
+  * Eliminate date_parse overhead
 
 Other Stuff
-  * Eliminate date_parse overhead
   * Replace UNION with UNION ALL if duplicates do not need to be removed
   * Aggregate a series of LIKE clauses into one regexp_like expression
   * Push down a complex join condition into a sub query
