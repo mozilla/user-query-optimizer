@@ -1,0 +1,4 @@
+# Caches
+.cache/*
+tests/__pycache__/*
+*.pyc
