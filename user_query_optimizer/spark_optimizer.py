@@ -7,7 +7,7 @@ import column_selection
 import partitions
 import nested_subqueries
 import parquet_ordering
-import dates
+import filtering_transforms
 
 class SparkOptimizer(Optimizer):
     def __init__(self, schema):
@@ -26,5 +26,5 @@ class SparkOptimizer(Optimizer):
     def _extractNestedSubqueries(self, parsed_queries):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
 
-    def _checkDateParse(self, parsed_queries):
-        dates.checkDateParse(self.optimizations, parsed_queries)
+    def _checkFiltering(self, parsed_queries):
+        filtering_transforms.checkFiltering(self.optimizations, parsed_queries)

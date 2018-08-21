@@ -8,7 +8,7 @@ from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 
 # Optimization # 6
-def checkDateParse(optimizations, parsed_queries, *db_params):
+def checkFiltering(optimizations, parsed_queries, *db_params):
     for stmt_list in parsed_queries:
         for stmt in stmt_list:
             seen_stmt = ""
