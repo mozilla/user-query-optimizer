@@ -2,16 +2,13 @@
 ## Introduction
 This API will help you optimize your sql queries for better performance.
 
-## Workflow
 
-### Create the optimizer object
-Object specific to a single (database, schema) pair
+## How to use
+Create an optimizer object specific to a single (database, schema) pair
 e.g. `optimizer = get_optimizer("presto", schema)`
 
-### Get optimization hints using `optimize_query(query)`
-Output: optimization hints
-
-Usage: `presto_op.optimize_query(query)`
+Get optimization hints using `optimize_query(query)`
+e.g. `presto_op.optimize_query(query)`
 
 Initial Optimization Checks
   * Using approximate algorithms (`approx_distinct()` instead of `COUNT(DISTINCT ...)`)
@@ -19,7 +16,7 @@ Initial Optimization Checks
   * Filtering on partitioned columns
   * Try to extract nested subqueries using a WITH clause.
   * Suggest filtering on most effective columns, by parquet-file ordering
-  * Eliminate date_parse overhead
+  * Eliminate filtering overhead for partitioned columns
 
 Other Stuff
   * Replace UNION with UNION ALL if duplicates do not need to be removed
