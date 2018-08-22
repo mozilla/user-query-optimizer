@@ -27,4 +27,4 @@ class PrestoOptimizer(Optimizer):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
 
     def _checkFiltering(self, parsed_queries):
-        filtering_transforms.checkFiltering(self.optimizations, parsed_queries)
+        filtering_transforms.checkFiltering(self.optimizations, self.schema, parsed_queries)
