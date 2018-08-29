@@ -1,10 +1,17 @@
-from setuptools import setup
+import codecs
+import os
+import re
 
-setup(name='user-query-optimizer',
-      version='0.1',
-      description='SQL query optimizer',
-      url='https://github.com/swathiiyer2/user-query-optimizer',
-      author='Swathi Iyer',
-      author_email='swathii@stanford.edu',
-      packages=['user-query-optimizer'],
-      zip_safe=False)
+from setuptools import setup, find_packages
+
+setup(
+    name='user-query-optimizer',
+    version='0.1.0',
+    author='Swathi Iyer',
+    author_email='swathii@stanford.edu',
+    packages=['user_query_optimizer'],
+    url='https://github.com/mozilla/user-query-optimizer',
+    license='LICENSE.txt',
+    description='SQL query optimization hints',
+    long_description=open('README.md').read(),
+)
