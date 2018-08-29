@@ -1,6 +1,6 @@
 SELECT *
 FROM
-  access
+  telemetry_core_parquet
 WHERE
   method LIKE '%GET%' OR
   method LIKE '%POST%' OR
