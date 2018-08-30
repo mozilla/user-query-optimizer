@@ -23,6 +23,6 @@ def checkFiltering(optimizations, schema, parsed_queries, *db_params):
                             for param in params:
                                 if param in schema["partitions"]:
                                     lineno = seen_stmt.count("\n")
-                                    optimizations[stmt].append((lineno, "eliminate overhead from transforming partitioned column " + param))
+                                    optimizations[stmt].append((lineno, "Transformations on partitioned columns are more computationally expensive than direct comparisons. Try and move the transformation to the other side of the comparison on the following column: " + param))
 
                 seen_stmt += str(token)
