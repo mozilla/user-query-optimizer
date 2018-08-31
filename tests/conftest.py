@@ -1,3 +1,4 @@
+import filepaths
 import pytest
 import glob
 import re
