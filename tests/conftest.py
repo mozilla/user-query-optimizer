@@ -1,9 +1,7 @@
-import filepaths
 import pytest
 import glob
 import re
 from user_query_optimizer import get_optimizer
-
 
 
 @pytest.fixture()
