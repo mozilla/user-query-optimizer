@@ -1,7 +1,4 @@
-from optimizer import Optimizer
-from collections import defaultdict
 import sys
-sys.path.append('../user_query_optimizer/optimizations')
 import approximates
 import column_selection
 import partitions
