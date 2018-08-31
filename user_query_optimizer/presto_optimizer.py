@@ -1,13 +1,10 @@
-from optimizer import Optimizer
-from collections import defaultdict
-import sys
-sys.path.append('../user_query_optimizer/optimizations')
 import approximates
 import column_selection
 import partitions
 import nested_subqueries
-import parquet_ordering
-import filtering_transforms
+from optimizer import Optimizer
+from collections import defaultdict
+
 
 class PrestoOptimizer(Optimizer):
     def __init__(self, schema):

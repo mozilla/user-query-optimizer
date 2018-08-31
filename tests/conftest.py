@@ -1,9 +1,9 @@
-from user_query_optimizer import get_optimizer
+import filepaths
 import pytest
 import glob
 import re
-import sys
-sys.path.append('../')
+from user_query_optimizer import get_optimizer
+
 
 
 @pytest.fixture()
