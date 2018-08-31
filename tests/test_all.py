@@ -1,11 +1,3 @@
-import re
-from collections import defaultdict
-from collections import OrderedDict
-import sys
-sys.path.append('../user_query_optimizer')
-import optimizer
-import sqlparse
-
 def test_all(queries, presto_op):
     correct_ops = {
         'test-query-1.txt': {0: ['filter on a partitioned column',
