@@ -1,10 +1,6 @@
 import re
-import sqlparse
-from collections import defaultdict
-from collections import OrderedDict
-from clickhouse_cli.ui.parseutils.ctes import extract_ctes
-from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
-from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
+from sqlparse.sql import IdentifierList, Identifier
+from sqlparse.tokens import Keyword, DML
 
 # Optimization #1
 #   Suggest using approximate algorithms (e.g. approx_distinct() instead of COUNT(DISTINCT ...));
@@ -13,6 +9,7 @@ from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
 #   statement as key, and (line no, "use approximation") tuple to corresponding
 #   list in self.optimizations dictionary if found;
 #   Same for all databases I think?
+
 
 def checkApproximates(optimizations, parsed_queries, *db_params):
     for stmt_list in parsed_queries:
