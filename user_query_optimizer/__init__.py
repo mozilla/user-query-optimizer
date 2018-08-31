@@ -2,6 +2,7 @@ from presto_optimizer import PrestoOptimizer
 from athena_optimizer import AthenaOptimizer
 from spark_optimizer import SparkOptimizer
 
+
 def get_optimizer(db, schema):
     if db == "presto":
         return PrestoOptimizer(schema)
