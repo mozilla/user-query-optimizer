@@ -1,10 +1,5 @@
-import re
-from collections import defaultdict
-from collections import OrderedDict
-import sys
-sys.path.append('../user_query_optimizer')
-import optimizer
 import sqlparse
+
 
 def test_partitions(queries, presto_op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
@@ -13,7 +8,7 @@ def test_partitions(queries, presto_op):
         'test-query-3.txt': [0],
         'test-query-4.txt': [0, 4],
         'test-query-5.txt': [3],
-        'test-query-6.txt': [0], # for some reason, sqlparse not recognizing two statemnets
+        'test-query-6.txt': [0],
         'test-query-8.txt': [0],
         'test-query-10.txt': [0]
     }
@@ -22,7 +17,7 @@ def test_partitions(queries, presto_op):
     for ind, query in enumerate(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
+        formatted_query = str(sqlparse.format(query, strip_comments=True)).strip()
         parsed_queries = presto_op._parse_query(formatted_query)
 
         presto_op._checkPartitions(parsed_queries)

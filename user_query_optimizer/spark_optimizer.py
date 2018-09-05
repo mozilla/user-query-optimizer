@@ -1,13 +1,10 @@
-from optimizer import Optimizer
-from collections import defaultdict
-import sys
-sys.path.append('../user_query_optimizer/optimizations')
 import approximates
 import column_selection
 import partitions
 import nested_subqueries
-import parquet_ordering
-import filtering_transforms
+from optimizer import Optimizer
+from collections import defaultdict
+
 
 class SparkOptimizer(Optimizer):
     def __init__(self, schema):
@@ -22,6 +19,9 @@ class SparkOptimizer(Optimizer):
 
     def _checkPartitions(self, parsed_queries):
         partitions.checkPartitions(self.optimizations, self.schema, parsed_queries)
+
+    def _checkOrdering(self, parsed_queries):
+        parquet_ordering.checkOrdering(self.optimizations, self.schema, parsed_queries)
 
     def _extractNestedSubqueries(self, parsed_queries):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)

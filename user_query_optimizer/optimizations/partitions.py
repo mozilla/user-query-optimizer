@@ -1,11 +1,6 @@
-import re
-import sqlparse
-from collections import defaultdict
-from collections import OrderedDict
-from clickhouse_cli.ui.parseutils.ctes import extract_ctes
 from clickhouse_cli.ui.parseutils.tables import extract_tables
-from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
-from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
+from sqlparse.sql import Where, Comparison
+
 
 # Optimization # 3
 #    Suggest filtering on partitioned columns
@@ -32,7 +27,7 @@ def checkPartitions(optimizations, schema, parsed_queries, *db_params):
                     for item in token.tokens:
                         if isinstance(item, Comparison):
                             if item.left.value in schema["partitions"] or \
-                                item.right.value in schema["partitions"]:
+                                    item.right.value in schema["partitions"]:
                                     partition_seen = True
                                     break
                 seen_stmt += str(token)

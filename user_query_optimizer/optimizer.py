@@ -1,10 +1,8 @@
-import re
 import sqlparse
 from collections import defaultdict
 from collections import OrderedDict
 from clickhouse_cli.ui.parseutils.ctes import extract_ctes
-from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
-from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
+
 
 class Optimizer:
     def __init__(self, schema):
@@ -14,7 +12,7 @@ class Optimizer:
     def optimize_query(self, query):
         # Parse queries and extract CTEs
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
+        formatted_query = str(sqlparse.format(query, strip_comments=True)).strip()
         parsed_queries = self._parse_query(formatted_query)
 
         # Run all optimization checks
@@ -39,9 +37,9 @@ class Optimizer:
         self._checkApproximates(parsed_queries)
         self._checkColumnSelection(parsed_queries)
         self._checkPartitions(parsed_queries)
+        self._checkOrdering(parsed_queries)
         self._extractNestedSubqueries(parsed_queries)
         self._checkFiltering(parsed_queries)
-
 
     # Parse query using sqlparse and extract CTEs
     # Input: Original query formatted

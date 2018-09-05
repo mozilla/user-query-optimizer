@@ -1,10 +1,6 @@
-import re
-import sqlparse
-from collections import defaultdict
-from collections import OrderedDict
-from clickhouse_cli.ui.parseutils.ctes import extract_ctes
-from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
-from sqlparse.tokens import Keyword, DML, Newline, CTE, Wildcard
+from sqlparse.sql import IdentifierList
+from sqlparse.tokens import Keyword, DML, Wildcard
+
 
 # Optimization # 2
 #   Suggest selecting the columns the user wants explicitly, rather than using (SELECT *)

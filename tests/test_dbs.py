@@ -1,10 +1,5 @@
-import re
-from collections import defaultdict
-from collections import OrderedDict
-import sys
-sys.path.append('../user_query_optimizer')
-import optimizer
 import sqlparse
+
 
 def test_presto(queries, presto_op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
@@ -16,7 +11,7 @@ def test_presto(queries, presto_op):
     for ind, query in enumerate(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
+        formatted_query = str(sqlparse.format(query, strip_comments=True)).strip()
         parsed_queries = presto_op._parse_query(formatted_query)
 
         presto_op._checkApproximates(parsed_queries)
@@ -31,6 +26,7 @@ def test_presto(queries, presto_op):
     assert len(test_ops) == 1
     assert test_ops == correct_ops
 
+
 def test_athena(queries, athena_op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_ops = {
@@ -41,7 +37,7 @@ def test_athena(queries, athena_op):
     for ind, query in enumerate(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
+        formatted_query = str(sqlparse.format(query, strip_comments=True)).strip()
         parsed_queries = athena_op._parse_query(formatted_query)
 
         athena_op._checkApproximates(parsed_queries)
@@ -56,6 +52,7 @@ def test_athena(queries, athena_op):
     assert len(test_ops) == 1
     assert test_ops == correct_ops
 
+
 def test_spark(queries, spark_op):
     # dictionary from test-query-file -> list of line numbers in that query with an approx optimization
     correct_ops = {
@@ -66,7 +63,7 @@ def test_spark(queries, spark_op):
     for ind, query in enumerate(queries):
         # Parse query and extract ctes
         # Strip comments to help sqlparse correctly extract the identifier list
-        formatted_query = str(sqlparse.format(query, strip_comments = True)).strip()
+        formatted_query = str(sqlparse.format(query, strip_comments=True)).strip()
         parsed_queries = spark_op._parse_query(formatted_query)
 
         spark_op._checkApproximates(parsed_queries)
