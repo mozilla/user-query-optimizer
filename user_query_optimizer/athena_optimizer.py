@@ -6,6 +6,8 @@ import approximates
 import column_selection
 import partitions
 import nested_subqueries
+import parquet_ordering
+import filtering_transforms
 
 class AthenaOptimizer(Optimizer):
     def __init__(self, schema):
@@ -23,3 +25,6 @@ class AthenaOptimizer(Optimizer):
 
     def _extractNestedSubqueries(self, parsed_queries):
         nested_subqueries.extractNestedSubqueries(self.optimizations, parsed_queries)
+
+    def _checkFiltering(self, parsed_queries):
+        filtering_transforms.checkFiltering(self.optimizations, self.schema, parsed_queries)
